@@ -78,16 +78,18 @@ def main():
 
     total_length = int(pygame.mixer.Sound(file_path).get_length()) * 1000
 
+    clear_screen()
+
     with Progress(
         TextColumn("{task.description}[/]", justify="right"),
-        BarColumn(),
-        TextColumn("{task.fields[suffix]}", justify="right")
+        BarColumn(bar_width=None),
+        TextColumn("{task.fields[suffix]}", justify="right"),
     ) as progress:
 
         playback = progress.add_task(
-            f"[green]Playing: [white]'{file_path}' [#00d0ff]",
+            f"[#03ad00]Playing: [white]{file_path} [red]< [#00d0ff]",
             total=total_length, 
-            suffix="[#00d0ff]")
+            suffix="[#00d0ff] [red]>")
 
         i = 0
 
@@ -105,10 +107,11 @@ def main():
                         progress.update(
                             playback, 
                             advance=10, 
-                            description=f"[green]Playing: [white]'{file_path}' [#00d0ff]{format_time(current_time)}",
-                            suffix=f"[#00d0ff]{format_time(total_length - current_time)}")
+                            description=f"[#03ad00]Playing: [white]{file_path} [red]< [#00d0ff]{format_time(current_time)}",
+                            suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>")
                         if i < len(lyrics) and format_time(current_time) >= lyrics[i][1:9]:
-                            print(lyrics[i])
+                            clear_screen()
+                            console.print(lyrics[i][10:], justify="center")
                             i += 1
 
                         sleep_time = next_time - time.perf_counter()
