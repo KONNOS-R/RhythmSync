@@ -5,12 +5,22 @@ import pygame
 from rich.console import Console
 from rich.progress import Progress
 import os
+from re import match
+
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def parse_lrc(lrc_text):
+
+def format_lrc(lrc_data):
+    timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
+    lrc_lines = lrc_data.split("\n")
+    print([line for line in lrc_lines if match(timestamp, line)])
+
+
+def display_lrc(formatted_lrc):
     pass
+
 
 def get_lrc_from_audio(file_path):
     try:
@@ -32,6 +42,7 @@ def get_lrc_from_audio(file_path):
         print(f"Error extracting LRC data: {e}")
         return None
 
+
 def main():
     clear_screen()
     console = Console()
@@ -43,7 +54,7 @@ def main():
         lrc_data = get_lrc_from_audio(file_path)
 
         if lrc_data:
-            lyrics = parse_lrc(lrc_data)
+            lyrics = format_lrc(lrc_data)
         else:
             console.print("[red]No lyrics found in audio file.[/red]")
             lyrics = []
@@ -57,7 +68,7 @@ def main():
         pygame.mixer.music.play()
     except Exception as e:
         print(f"Error playing audio file: {e}")
-        return
+        return None
 
     total_length = pygame.mixer.Sound(file_path).get_length()
 
@@ -80,6 +91,7 @@ def main():
             pygame.mixer.quit()
             clear_screen()
             console.print("[yellow]Playback interrupted.[/yellow]")
+
 
 if __name__ == "__main__":
     main()

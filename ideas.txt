@@ -11,3 +11,6 @@ Structure:
 
            {lyrics at current timestamp}
 Playing... ###########------------------ h:mm:ss
+
+
+LRC format is: [mm:ss.xx] lyric
