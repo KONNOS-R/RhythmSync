@@ -107,7 +107,7 @@ def main():
                             advance=10, 
                             description=f"[green]Playing: [white]'{file_path}' [#00d0ff]{format_time(current_time)}",
                             suffix=f"[#00d0ff]{format_time(total_length - current_time)}")
-                        if format_time(current_time) == lyrics[i][1:9]:
+                        if i < len(lyrics) and format_time(current_time) >= lyrics[i][1:9]:
                             print(lyrics[i])
                             i += 1
 
