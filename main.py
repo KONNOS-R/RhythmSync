@@ -89,29 +89,35 @@ def main():
             total=total_length, 
             suffix="[#00d0ff]")
 
+        i = 0
+
         try:
             while pygame.mixer.music.get_busy():
-                async def loop():
+                async def loop(i):
                     interval = 0.01
                     next_time = time.perf_counter()
-                
+                    
                     while True:
                         next_time += interval
-                
+
+                        #programme inside timer
                         current_time = pygame.mixer.music.get_pos()
                         progress.update(
                             playback, 
                             advance=10, 
                             description=f"[green]Playing: [white]'{file_path}' [#00d0ff]{format_time(current_time)}",
                             suffix=f"[#00d0ff]{format_time(total_length - current_time)}")
-                
+                        if format_time(current_time) == lyrics[i][1:9]:
+                            print(lyrics[i])
+                            i += 1
+
                         sleep_time = next_time - time.perf_counter()
                         if sleep_time > 0:
                             await asyncio.sleep(sleep_time)
                         else:
                             await asyncio.sleep(0)
                 
-                asyncio.run(loop())                
+                asyncio.run(loop(i))                
 
         except KeyboardInterrupt:
             pass
