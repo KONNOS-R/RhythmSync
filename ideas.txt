@@ -1,0 +1,13 @@
+Libraries:
+
+use pygame for audio playback and live time elapsed
+
+use mutagen to get lrc info
+
+use rich for cli interface formatting
+
+
+Structure:
+
+           {lyrics at current timestamp}
+Playing... ###########------------------ h:mm:ss
