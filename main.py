@@ -1,4 +1,5 @@
 import time
+import asyncio
 import mutagen
 from mutagen import File
 import pygame
@@ -24,10 +25,6 @@ def format_lrc(lrc_data):
     timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
     lrc_lines = lrc_data.split("\n")
     return [line for line in lrc_lines if match(timestamp, line)]
-
-
-def display_lrc(formatted_lrc):
-    pass
 
 
 def get_lrc_from_audio(file_path):
@@ -79,7 +76,7 @@ def main():
         print(f"Error playing audio file: {e}")
         return None
 
-    total_length = pygame.mixer.Sound(file_path).get_length()
+    total_length = int(pygame.mixer.Sound(file_path).get_length()) * 1000
 
     with Progress(
         TextColumn("{task.description}[/]", justify="right"),
@@ -87,25 +84,34 @@ def main():
         TextColumn("{task.fields[suffix]}", justify="right")
     ) as progress:
 
-        console.print(lyrics[0])
-
         playback = progress.add_task(
-            f"[green]Playing: [white]'{file_path}' [blue]()",
+            f"[green]Playing: [white]'{file_path}' [#00d0ff]",
             total=total_length, 
-            suffix="[blue]()")
+            suffix="[#00d0ff]")
 
         try:
             while pygame.mixer.music.get_busy():
-                current_time = pygame.mixer.music.get_pos()
-                progress.update(
-                    playback, 
-                    advance=0.01, 
-                    description=f"[green]Playing: [white]'{file_path}' [blue]({format_time(current_time)})",
-                    suffix=f"([blue]{format_time(total_length)})")
-
+                async def loop():
+                    interval = 0.01
+                    next_time = time.perf_counter()
                 
-
-                time.sleep(0.01)
+                    while True:
+                        next_time += interval
+                
+                        current_time = pygame.mixer.music.get_pos()
+                        progress.update(
+                            playback, 
+                            advance=10, 
+                            description=f"[green]Playing: [white]'{file_path}' [#00d0ff]{format_time(current_time)}",
+                            suffix=f"[#00d0ff]{format_time(total_length - current_time)}")
+                
+                        sleep_time = next_time - time.perf_counter()
+                        if sleep_time > 0:
+                            await asyncio.sleep(sleep_time)
+                        else:
+                            await asyncio.sleep(0)
+                
+                asyncio.run(loop())                
 
         except KeyboardInterrupt:
             pass

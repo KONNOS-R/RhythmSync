@@ -10,7 +10,7 @@ use rich for cli interface formatting
 Structure:
 
            {lyrics at current timestamp}
-Playing... ###########------------------ mm:ss.xx
+Playing... mm:ss.xx ###########------------------ mm:ss.xx
 
 
 LRC format is: [mm:ss.xx] lyric
