@@ -54,7 +54,18 @@ def main():
     console = Console()
     pygame.mixer.init()
 
-    file_path = input("Path to audio file: ")
+    console.print('''[#00d0ff]
+  _____  _           _   _                _____                  
+ |  __ \\| |         | | | |              / ____|                 
+ | |__) | |__  _   _| |_| |__  _ __ ___ | (___  _   _ _ __   ___ 
+ |  _  /| '_ \\| | | | __| '_ \\| '_ ` _ \\ \___ \\| | | | '_ \\ / __|
+ | | \\ \\| | | | |_| | |_| | | | | | | | |____) | |_| | | | | (__ 
+ |_|  \\_\\_| |_|\\__, |\\__|_| |_|_| |_| |_|_____/ \__, |_| |_|\\___|
+                __/ |                            __/ |           
+               |___/                            |___/            
+''')
+
+    file_path = "AddMusicHere/"+input("audio name: ")
 
     try:
         lrc_data = get_lrc_from_audio(file_path)
@@ -87,7 +98,7 @@ def main():
     ) as progress:
 
         playback = progress.add_task(
-            f"[#03ad00]Playing: [white]{file_path} [red]< [#00d0ff]",
+            f"[#03ad00]Playing: [white]{file_path.split("/")[1]} [red]< [#00d0ff]",
             total=total_length, 
             suffix="[#00d0ff] [red]>")
 
@@ -107,7 +118,7 @@ def main():
                         progress.update(
                             playback, 
                             advance=10, 
-                            description=f"[#03ad00]Playing: [white]{file_path} [red]< [#00d0ff]{format_time(current_time)}",
+                            description=f"[#03ad00]Playing: [white]{file_path.split("/")[1]} [red]< [#00d0ff]{format_time(current_time)}",
                             suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>")
                         if i < len(lyrics) and format_time(current_time) >= lyrics[i][1:9]:
                             clear_screen()
