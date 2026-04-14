@@ -3,7 +3,7 @@ import mutagen
 from mutagen import File
 import pygame
 from rich.console import Console
-from rich.progress import Progress
+from rich.progress import Progress, BarColumn, TextColumn
 import os
 from re import match
 
@@ -12,10 +12,18 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def format_time(milliseconds):
+    min = int((milliseconds // 1000) // 60)
+    sec = (milliseconds // 1000) % 60
+    mil = milliseconds % 1000
+    hund = int(mil // 10)
+    return f"{min:02}:{sec:02}.{hund:02}"
+
+
 def format_lrc(lrc_data):
     timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
     lrc_lines = lrc_data.split("\n")
-    print([line for line in lrc_lines if match(timestamp, line)])
+    return [line for line in lrc_lines if match(timestamp, line)]
 
 
 def display_lrc(formatted_lrc):
@@ -43,6 +51,7 @@ def get_lrc_from_audio(file_path):
         return None
 
 
+#main programme
 def main():
     clear_screen()
     console = Console()
@@ -72,17 +81,31 @@ def main():
 
     total_length = pygame.mixer.Sound(file_path).get_length()
 
-    with Progress() as progress:
-        playback = progress.add_task(f"[green]Playing '{file_path}'", total=total_length)
+    with Progress(
+        TextColumn("{task.description}[/]", justify="right"),
+        BarColumn(),
+        TextColumn("{task.fields[suffix]}", justify="right")
+    ) as progress:
+
+        console.print(lyrics[0])
+
+        playback = progress.add_task(
+            f"[green]Playing: [white]'{file_path}' [blue]()",
+            total=total_length, 
+            suffix="[blue]()")
 
         try:
             while pygame.mixer.music.get_busy():
-                current_time = pygame.mixer.music.get_pos() / 1000
-                progress.update(playback, advance=0.1)
+                current_time = pygame.mixer.music.get_pos()
+                progress.update(
+                    playback, 
+                    advance=0.01, 
+                    description=f"[green]Playing: [white]'{file_path}' [blue]({format_time(current_time)})",
+                    suffix=f"([blue]{format_time(total_length)})")
 
                 
 
-                time.sleep(0.1)
+                time.sleep(0.01)
 
         except KeyboardInterrupt:
             pass
