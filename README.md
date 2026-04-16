@@ -1,4 +1,4 @@
-RhythmSync
+RhythmSync - 
 CLI audio player that plays music while displaying lyrics (LRC) in sync.
 
 For installation run:
