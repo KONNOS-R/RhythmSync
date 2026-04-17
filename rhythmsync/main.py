@@ -65,7 +65,7 @@ def main():
                |___/                            |___/            
 ''')
 
-    file_path = "AddMusicHere/"+input("audio name: ")
+    file_path = input("Path to audio file: ")
 
     try:
         lrc_data = get_lrc_from_audio(file_path)
@@ -98,7 +98,7 @@ def main():
     ) as progress:
 
         playback = progress.add_task(
-            f"[#03ad00]Playing: [white]{file_path.split("/")[1]} [red]< [#00d0ff]",
+            f"[#03ad00]Playing: [white]{file_path} [red]< [#00d0ff]",
             total=total_length, 
             suffix="[#00d0ff] [red]>")
 
@@ -118,7 +118,7 @@ def main():
                         progress.update(
                             playback, 
                             advance=10, 
-                            description=f"[#03ad00]Playing: [white]{file_path.split("/")[1]} [red]< [#00d0ff]{format_time(current_time)}",
+                            description=f"[#03ad00]Playing: [white]{file_path} [red]< [#00d0ff]{format_time(current_time)}",
                             suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>")
                         if i < len(lyrics) and format_time(current_time) >= lyrics[i][1:9]:
                             clear_screen()
