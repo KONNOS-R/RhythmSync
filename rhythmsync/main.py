@@ -131,8 +131,6 @@ def input_cli(prompt="> "):
         #CTRL+Z
         elif ch == "\x1a":
             print("\n[Suspended]")
-
-            # restore terminal BEFORE suspend
             fd = sys.stdin.fileno()
             termios.tcsetattr(fd, termios.TCSADRAIN, termios.tcgetattr(fd))
 

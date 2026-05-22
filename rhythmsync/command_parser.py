@@ -83,13 +83,13 @@ def parse_command(raw_command):
     elif cmd == "ls":
 
         if command_parts == 1:
-            console.print(f"[blue]{'   '.join(os.listdir())}", highlight=False)
+            console.print(f"[blue]{'   '.join(sorted(os.listdir()))}", highlight=False)
 
         elif command_parts == 2:
             directory = Path(command[1]).expanduser().resolve()
 
             if directory.exists():
-                console.print(f"[blue]{'   '.join(os.listdir(directory))}", highlight=False)
+                console.print(f"[blue]{'   '.join(sorted(os.listdir(directory)))}", highlight=False)
             else:
                 print("Please enter a valid path.")
 
