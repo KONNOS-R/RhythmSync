@@ -22,80 +22,90 @@ def get_tag_map():
 def get_metadata(file_path, tags=None):
     try:
         audio = File(file_path)
-
         if audio is None or audio.tags is None:
             print(f"Metadata error: Unsupported or unreadable file: {file_path}")
             return None
-
         tag_map = get_tag_map()
-        lines = []
         reverse_map = {}
+        for canonical, variants in tag_map.items():
+            for variant in variants:
+                reverse_map[variant.lower()] = canonical
 
-        for normal, variants in tag_map.items():
-            for v in variants:
-                reverse_map[v.lower()] = normal
+        normalized_tags = None
+        if tags is not None:
+            normalized_tags = {tag.lower() for tag in tags}
 
-        def clean(value):
-            if isinstance(value, (list, tuple)):
-                return "; ".join(str(v) for v in value)
-            return str(value)
+        lines = []
 
         for key, value in audio.tags.items():
+            canonical = reverse_map.get(key.lower(), key.lower())
 
-            norm_key = reverse_map.get(key.lower())
+            if normalized_tags is not None:
+                if canonical.lower() not in normalized_tags:
+                    continue
 
-            if norm_key is None:
-                continue
+            if hasattr(value, "text"):
+                value = value.text
 
-            if tags is not None and norm_key not in tags:
-                continue
+            if isinstance(value, (list, tuple)):
+                value = "; ".join(str(v) for v in value)
+            else:
+                value = str(value)
 
-            lines.append(f"[green]{norm_key}[/green]: {clean(value)}")
+            lines.append(
+                f"[green]{canonical}[/green]: {value}"
+            )
 
         return "\n".join(lines)
 
     except Exception as e:
         print(f"Metadata error: {e}")
         return None
-    
-    except Exception as e:
-        print(f"Metadata error: Error extracting metadata: {e}")
-        return None
 
 #get title and artist info
 def get_ti_ar(file_path):
     try:
         audio = File(file_path)
-
         if audio is None or audio.tags is None:
             return f"Unknown Title ({file_path})", "Unknown Artist"
-
         tag_map = get_tag_map()
         reverse_map = {}
-
         for canonical, keys in tag_map.items():
             for k in keys:
                 reverse_map[k.lower()] = canonical
 
-        def extract(canonical_name):
-            for key, value in audio.tags.items():
-                norm = reverse_map.get(key.lower())
-                if norm != canonical_name:
-                    continue
-                if isinstance(value, (list, tuple)):
-                    return str(value[0])
-                return str(value)
-            return None
+        title = None
+        artist = None
 
-        title = extract("title")
-        artist = extract("artist")
+        for key, value in audio.tags.items():
+            canonical = reverse_map.get(key.lower())
+
+            if canonical == "title" and title is None:
+                if hasattr(value, "text"):
+                    value = value.text
+
+                if isinstance(value, (list, tuple)):
+                    title = str(value[0])
+                else:
+                    title = str(value)
+
+            elif canonical == "artist" and artist is None:
+                if hasattr(value, "text"):
+                    value = value.text
+
+                if isinstance(value, (list, tuple)):
+                    artist = str(value[0])
+                else:
+                    artist = str(value)
 
         if not title:
             title = f"Unknown Title ({file_path})"
+
         if not artist:
             artist = "Unknown Artist"
-        return title, artist
 
+        return title, artist
+    
     except Exception as e:
         print(f"Metadata error: {e}")
         return f"Unknown Title ({file_path})", "Unknown Artist"
