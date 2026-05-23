@@ -23,6 +23,7 @@ CLI audio player that plays music while displaying synchronized lyrics (LRC).
   - Pause (`SPACE`)
   - Next (`RIGHT Arrow`)
   - Previous (`LEFT Arrow`)
+  - Toggle main display between lyrics and info (`I`)
 
 ---
 

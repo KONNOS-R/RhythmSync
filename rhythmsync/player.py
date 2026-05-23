@@ -21,7 +21,7 @@ def make_layout():
     layout = Layout()
     layout.split_column(
         Layout(name="header", size=4),
-        Layout(name="lyrics", ratio=1),
+        Layout(name="main", ratio=1),
         Layout(name="player", size=3)
     )
     return layout
@@ -91,6 +91,19 @@ def make_lyrics(lyrics):
         vertical="middle"
     )
 
+def make_file_info(info):
+    return Align.center(Group(
+            Align.center(f"[#00d0ff][bold]File Info:\n"),
+            Align.center(f"[white][bold]Title: [not bold]{info['title']}"),
+            Align.center(f"[white][bold]Artist: [not bold]{info['artist']}"),
+            Align.center(f"[white][bold]Album: [not bold]{info['album']}"),
+            Align.center(f"[white][bold]Genre: [not bold]{info['genre']}"),
+            Align.center(f"[white][bold]Date: [not bold]{info['date']}"),
+            Align.center(f"[white][bold]Sample Rate: [not bold]{info['sample_rate']}")
+        ),
+        vertical="middle"
+    )
+
 # player section
 def make_player():
     return Progress(
@@ -136,30 +149,41 @@ def run_player(file_path, mode=None):
         title, artist = metadata.get_ti_ar(file_path)
 
         lyrics_exist = False
+
         raw_lrc = metadata.get_lrc(file_path)
+
         if raw_lrc is not None:
             lyrics = metadata.format_lrc(raw_lrc)
             lyrics_exist = True
 
+        # prepare layout
         terminal_disp.clear_screen()
 
         layout["header"].update(make_header(title, artist, mode))
-        layout["lyrics"].update(
-            Align.center("No lyrics to display", vertical="middle")
-        )
+
+        layout["main"].update(make_file_info(metadata.get_info(file_path)))
+
         progress = make_player()
         layout["player"].update(progress)
 
+        # default values
+        lyric_index = -1
+
+        paused = False
+
+        if lyrics_exist:
+            main_status = "lyrics"
+        else:
+            main_status = "info"
+
+        # start player
         with Live(layout, refresh_per_second=100):
             playback = progress.add_task(
                 f"[red]< [#00d0ff]",
                 total=total_length,
                 suffix="[#00d0ff] [red]>"
             )
-
-            lyric_index = 0
-            paused = False
-
+                
             while pygame.mixer.music.get_busy() or paused:
                 current_time = pygame.mixer.music.get_pos()
 
@@ -208,18 +232,41 @@ def run_player(file_path, mode=None):
                                 elif mode[0][:9] == "directory":
                                     pygame.mixer.music.stop()
                                     return (True, int(mode[1])+1)
+                    elif key in "Ii":
+                        if main_status == "lyrics":
+                            main_status = "info"
+
+                            layout["main"].update(make_file_info(metadata.get_info(file_path)))
+                            
+                        elif main_status == "info":
+                            main_status = "lyrics"
+
+                            if lyrics_exist and main_status == "lyrics":
+                                layout["main"].update(make_lyrics((
+                                    lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
+                                    lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
+                                    lyrics[lyric_index][1],
+                                    lyrics[lyric_index + 1][1] if lyric_index < len(lyrics) - 1 else "",
+                                    lyrics[lyric_index + 2][1] if lyric_index < len(lyrics) - 2 else ""
+                                )))
+                            else:
+                                layout["main"].update(Align.center("No lyrics to display", vertical="middle"))
+                            
 
                 if not paused:
-                    if lyrics_exist and lyric_index < len(lyrics):
-                        if unformat_time(lyrics[lyric_index][0]) <= current_time:
-                            layout["lyrics"].update(make_lyrics((
-                                lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
-                                lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
-                                lyrics[lyric_index][1],
-                                lyrics[lyric_index + 1][1] if lyric_index < len(lyrics) - 1 else "",
-                                lyrics[lyric_index + 2][1] if lyric_index < len(lyrics) - 2 else ""
-                            )))
-                            lyric_index += 1
+                    if lyrics_exist and lyric_index < len(lyrics) and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
+                        lyric_index += 1
+                        layout["main"].update(make_lyrics((
+                            lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
+                            lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
+                            lyrics[lyric_index][1],
+                            lyrics[lyric_index + 1][1] if lyric_index < len(lyrics) - 1 else "",
+                            lyrics[lyric_index + 2][1] if lyric_index < len(lyrics) - 2 else ""
+                        )))
+                    
+                    else:
+                        pass
+
 
                     progress.update(
                         playback,

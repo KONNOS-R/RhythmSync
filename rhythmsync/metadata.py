@@ -2,6 +2,7 @@ from mutagen import File
 from re import match
 
 
+# tag map
 def get_tag_map():
     return {
         "title": ["title", "TIT2", "TITLE", "©nam"],
@@ -18,7 +19,7 @@ def get_tag_map():
         "genre": ["genre", "TCON", "©gen"]
     }
 
-# get meatadata
+# get meatadata for info command
 def get_metadata(file_path, tags=None):
     try:
         audio = File(file_path)
@@ -62,7 +63,7 @@ def get_metadata(file_path, tags=None):
         print(f"Metadata error: {e}")
         return None
 
-# get title and artist info
+# get title and artist info for the player
 def get_ti_ar(file_path):
     try:
         audio = File(file_path)
@@ -137,7 +138,7 @@ def get_lrc(file_path):
         print(f"Player error: Error extracting LRC data: {e}")
         return None
 
-# get lyric lines without the tags from the lrc data
+# format lyrics for the player
 def format_lrc(lrc_data):
     timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
     lrc_lines = lrc_data.split("\n")
@@ -147,3 +148,50 @@ def format_lrc(lrc_data):
         if x[1] == "":
             x[1] = "♫"
     return lyrics
+
+def get_info(file_path):
+    try:
+        audio = File(file_path)
+        if audio is None or audio.tags is None:
+            print(f"Metadata error: Unsupported or unreadable file: {file_path}")
+            return None
+        tag_map = get_tag_map()
+        reverse_map = {}
+        for canonical, variants in tag_map.items():
+            for variant in variants:
+                reverse_map[variant.lower()] = canonical
+
+        tags = ["title", "artist", "album", "genre", "date"]
+
+        info = {
+            "title": "Unknown Title",
+            "artist": "Unknown Artist",
+            "album": "Unknown Album",
+            "genre": "Unknown Genre",
+            "date": "Unknown Date",
+            "sample_rate": "Unknown Sample Rate"
+        }
+
+        for key, value in audio.tags.items():
+            canonical = reverse_map.get(key.lower(), key.lower())
+
+            if canonical not in tags:
+                continue
+
+            if hasattr(value, "text"):
+                value = value.text
+
+            if isinstance(value, (list, tuple)):
+                value = "; ".join(str(v) for v in value)
+            else:
+                value = str(value)
+
+            info[canonical] = value
+        
+        info["sample_rate"] = audio.info.sample_rate
+
+        return info
+
+    except Exception as e:
+        print(f"Metadata error: {e}")
+        return None
