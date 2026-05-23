@@ -8,7 +8,7 @@ import rhythmsync.terminal_disp as terminal_disp
 import rhythmsync.command_parser as command_parser
 
 
-#capture key strokes
+# capture key strokes
 def getch():
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
@@ -21,7 +21,7 @@ def getch():
 
     return ch
 
-#history redraw logic
+# history redraw logic
 def redraw_input(prompt, buffer):
     global last_rendered_lines
 
@@ -47,7 +47,7 @@ def redraw_input(prompt, buffer):
 
     last_rendered_lines = lines
 
-#path autocompletion
+# path autocompletion
 def complete_path(text):
     if not text:
         return text
@@ -112,7 +112,7 @@ def complete_path(text):
 
     return text
 
-#cli input
+# cli input
 def input_cli(prompt="> "):
     global history_index
 
@@ -180,7 +180,7 @@ def input_cli(prompt="> "):
             buffer += ch
             redraw_input(prompt, buffer)
 
-#main program
+# main program
 def main():
     terminal_disp.clear_screen()
 
@@ -203,6 +203,6 @@ def main():
             terminal_disp.logo()
             print(f"Error: {e}")
 
-#entry point
+# entry point
 if __name__ == "__main__":
     main()

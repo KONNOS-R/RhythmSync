@@ -4,25 +4,25 @@ console = Console()
 from rich.align import Align
 
 
-#clear the terminal
+# clear the terminal
 def clear_screen():
     os.system('clear')
 
-#print logo
+# print logo
 def logo():
-    console.print(Align.center('''[bold][#5900ab]
-[#5900ab] _____  _           _   _                [#00d0ff]_____                  
-[#5900ab]|  __ \\| |         | | | |              [#00d0ff]/ ____|                 
+    console.print(Align.center(r'''[bold][#5900ab]
+[#5900ab] _____  _           _   _               [#00d0ff] _____                  
+[#5900ab]|  __ \| |         | | | |              [#00d0ff]/ ____|                 
 [#5900ab]| |__) | |__  _   _| |_| |__  _ __ ___ [#00d0ff]| (___  _   _ _ __   ___ 
-[#5900ab]|  _  /| '_ \\| | | | __| '_ \\| '_ ` _ \\ [#00d0ff]\\___ \\| | | | '_ \\ / __|
-[#5900ab]| | \\ \\| | | | |_| | |_| | | | | | | | |[#00d0ff]____) | |_| | | | | (__ 
-[#5900ab]|_|  \\_\\_| |_|\\__, |\\__|_| |_|_| |_| |_|[#00d0ff]_____/ \__, |_| |_|\\___|
-[#5900ab]               __/ |                         [#00d0ff]   __/ |           
-[#5900ab]              |___/                           [#00d0ff] |___/            
+[#5900ab]|  _  /| '_ \| | | | __| '_ \| '_ ` _ \ [#00d0ff]\___ \| | | | '_ \ / __|
+[#5900ab]| | \ \| | | | |_| | |_| | | | | | | | |[#00d0ff]____) | |_| | | | | (__ 
+[#5900ab]|_|  \_\_| |_|\__, |\__|_| |_|_| |_| |_|[#00d0ff]_____/ \__, |_| |_|\___|
+[#5900ab]               __/ |                    [#00d0ff]        __/ |           
+[#5900ab]              |___/                     [#00d0ff]       |___/            
 '''
     ))
 
-#print help message
+# print help message
 def help_msg():
     console.print('''COMMAND LIST:
 [green]help[/green]  lists all available commands

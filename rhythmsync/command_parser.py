@@ -11,16 +11,16 @@ import rhythmsync.converter as converter
 import rhythmsync.terminal_disp as terminal_disp
 
 
-#resets the cli
+# resets the cli
 def reset_cli():
     terminal_disp.clear_screen()
     terminal_disp.logo()
 
-#supported extensions
+# supported extensions
 def is_audio_file(path: Path):
     return path.is_file() and path.suffix.lower() in (".mp3", ".flac", ".wav", ".ogg")
 
-#returns audio files in dir
+# returns audio files in dir
 def get_audio_files(path: Path, recursive: bool = False):
     if recursive:
         files = path.rglob("*")
@@ -29,7 +29,7 @@ def get_audio_files(path: Path, recursive: bool = False):
 
     return sorted([f for f in files if is_audio_file(f)])
 
-#single loop mode logic
+# single loop mode logic
 def player_loop(file_path: Path, mode: str):
     repeat = True
 
@@ -37,7 +37,7 @@ def player_loop(file_path: Path, mode: str):
         result = player.run_player(str(file_path), mode)
         repeat = result[0]
 
-#directory modes logic
+# directory modes logic
 def player_directory(files, mode, repeat_mode=False):
     if not files:
         print("No audio files found.")

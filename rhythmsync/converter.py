@@ -3,7 +3,7 @@ from rich.console import Console
 console = Console()
 
 
-#converts audio file to other formats
+# converts audio file to other formats
 def convert(input_file, output_file):
     try:
         subprocess.run([

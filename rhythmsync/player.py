@@ -16,7 +16,7 @@ import rhythmsync.metadata as metadata
 import rhythmsync.terminal_disp as terminal_disp
 
 
-#create rich layout
+# create rich layout
 def make_layout():
     layout = Layout()
     layout.split_column(
@@ -26,7 +26,7 @@ def make_layout():
     )
     return layout
 
-#header section
+# header section
 def make_header(title, artist, mode = None):
         if mode is not None:
             if mode[0] == "repeat":
@@ -78,7 +78,7 @@ def make_header(title, artist, mode = None):
               style="white",
     )
 
-#lyrics section
+# lyrics section
 def make_lyrics(lyrics):
     line1, line2, line3, line4, line5 = lyrics
     return Align.center(Group(
@@ -91,7 +91,7 @@ def make_lyrics(lyrics):
         vertical="middle"
     )
 
-#player section
+# player section
 def make_player():
     return Progress(
         TextColumn("{task.description}[/]", justify="right"),
@@ -99,7 +99,7 @@ def make_player():
         TextColumn("{task.fields[suffix]}", justify="right"),
     )
 
-#format time in mm:ss.xx format
+# format time in mm:ss.xx format
 def format_time(milliseconds):
     min = int((milliseconds // 1000) // 60)
     sec = (milliseconds // 1000) % 60
@@ -107,7 +107,7 @@ def format_time(milliseconds):
     hund = int(mil // 10)
     return f"{min:02}:{sec:02}.{hund:02}"
 
-#format time to milliseconds
+# format time to milliseconds
 def unformat_time(time_str):
     min, sec = time_str.split(":")
     sec, hund = sec.split(".")
