@@ -1,6 +1,16 @@
 # RhythmSync
 
+<center>
+```
+  ___ _        _   _          ___              
+ | _ \ |_ _  _| |_| |_  _ __ / __|_  _ _ _  __ 
+ |   / ' \ || |  _| ' \| '  \\__ \ || | ' \/ _|
+ |_|_\_||_\_, |\__|_||_|_|_|_|___/\_, |_||_\__|
+          |__/                    |__/         
+```
+
 CLI audio player that plays music while displaying synchronized lyrics (LRC).
+</center>
 
 ---
 
