@@ -4,12 +4,6 @@ console = Console()
 
 
 # converts audio file to other formats
-import subprocess
-from rich.console import Console
-
-console = Console()
-
-
 def convert(input_file, output_file):
     try:
         suffix = output_file.suffix.lower()

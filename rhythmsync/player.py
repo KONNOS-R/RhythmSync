@@ -91,6 +91,7 @@ def make_lyrics(lyrics):
         vertical="middle"
     )
 
+# file info section
 def make_file_info(info):
     return Align.center(Group(
             Align.center(f"[#00d0ff][bold]File Info:\n"),
@@ -197,6 +198,7 @@ def run_player(file_path, mode=None):
                         if paused:
                             pygame.mixer.music.unpause()
                             paused = False
+
                         else:
                             progress.update(
                                 playback,
@@ -260,7 +262,7 @@ def run_player(file_path, mode=None):
                 if not paused:
                     if lyrics_exist and lyric_index < len(lyrics) - 1 and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
                         lyric_index += 1
-                        
+
                         layout["main"].update(make_lyrics((
                             lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
                             lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
