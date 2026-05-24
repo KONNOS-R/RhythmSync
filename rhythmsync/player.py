@@ -156,6 +156,15 @@ def run_player(file_path, mode=None):
             lyrics = metadata.format_lrc(raw_lrc)
             lyrics_exist = True
 
+        lyric_index = -1
+
+        paused = False
+
+        if lyrics_exist:
+            main_status = "lyrics"
+        else:
+            main_status = "info"
+
         # prepare layout
         terminal_disp.clear_screen()
 
@@ -165,16 +174,6 @@ def run_player(file_path, mode=None):
 
         progress = make_player()
         layout["player"].update(progress)
-
-        # default values
-        lyric_index = -1
-
-        paused = False
-
-        if lyrics_exist:
-            main_status = "lyrics"
-        else:
-            main_status = "info"
 
         # start player
         with Live(layout, refresh_per_second=100):
@@ -192,6 +191,7 @@ def run_player(file_path, mode=None):
 
                 if ready:
                     key = sys.stdin.read(1)
+
                     #SPACE
                     if key == " ":
                         if paused:
@@ -206,17 +206,21 @@ def run_player(file_path, mode=None):
                             )
                             pygame.mixer.music.pause()
                             paused = True
+
                     #ESC seq
                     elif key == "\x1b":
                             seq = sys.stdin.read(2)
+
                             # LEFT arrow
                             if seq == "[D":
                                 if mode[0] == "single":
                                     pygame.mixer.music.stop()
                                     return (True, 0)
+                                
                                 elif mode[0] == "repeat":
                                     pygame.mixer.music.stop()
                                     return (True, 0)
+                                
                                 elif mode[0][:9] == "directory":
                                     pygame.mixer.music.stop()
                                     return (True, int(mode[1])-1)
@@ -232,6 +236,7 @@ def run_player(file_path, mode=None):
                                 elif mode[0][:9] == "directory":
                                     pygame.mixer.music.stop()
                                     return (True, int(mode[1])+1)
+                                
                     elif key in "Ii":
                         if main_status == "lyrics":
                             main_status = "info"
@@ -252,10 +257,10 @@ def run_player(file_path, mode=None):
                             else:
                                 layout["main"].update(Align.center("No lyrics to display", vertical="middle"))
                             
-
                 if not paused:
-                    if lyrics_exist and lyric_index < len(lyrics) and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
+                    if lyrics_exist and lyric_index < len(lyrics) - 1 and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
                         lyric_index += 1
+                        
                         layout["main"].update(make_lyrics((
                             lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
                             lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
@@ -263,10 +268,6 @@ def run_player(file_path, mode=None):
                             lyrics[lyric_index + 1][1] if lyric_index < len(lyrics) - 1 else "",
                             lyrics[lyric_index + 2][1] if lyric_index < len(lyrics) - 2 else ""
                         )))
-                    
-                    else:
-                        pass
-
 
                     progress.update(
                         playback,

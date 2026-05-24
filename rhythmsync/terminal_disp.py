@@ -39,8 +39,6 @@ def logo():
 '''
     ))
 
-
-
 # print help message
 def help_msg():
     console.print('''COMMAND LIST:
