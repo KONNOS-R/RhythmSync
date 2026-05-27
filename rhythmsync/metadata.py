@@ -68,7 +68,7 @@ def get_ti_ar(file_path):
     try:
         audio = File(file_path)
         if audio is None or audio.tags is None:
-            return f"Unknown Title ({file_path})", "Unknown Artist"
+            return f"Unknown Title", "Unknown Artist"
         tag_map = get_tag_map()
         reverse_map = {}
         for canonical, keys in tag_map.items():
@@ -100,7 +100,7 @@ def get_ti_ar(file_path):
                     artist = str(value)
 
         if not title:
-            title = f"Unknown Title ({file_path})"
+            title = f"Unknown Title"
 
         if not artist:
             artist = "Unknown Artist"
@@ -109,7 +109,7 @@ def get_ti_ar(file_path):
     
     except Exception as e:
         print(f"Metadata error: {e}")
-        return f"Unknown Title ({file_path})", "Unknown Artist"
+        return f"Unknown Title", "Unknown Artist"
 
 # get lrc data from the audio file
 def get_lrc(file_path):
@@ -141,9 +141,19 @@ def get_lrc(file_path):
 # format lyrics for the player
 def format_lrc(lrc_data):
     timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
+
     lrc_lines = lrc_data.split("\n")
+
     lyrics = [[line[1:9],line[10:].strip()] for line in lrc_lines if match(timestamp, line)]
+
+    #lyrics = [
+    #[i, line[1:9], line[10:].strip()]
+    #for i, line in enumerate(lrc_lines, start=1)
+    #if match(timestamp, line)
+    #]
+
     lyrics.insert(0,['00:00.00', ""])
+
     for x in lyrics:
         if x[1] == "":
             x[1] = "♫"

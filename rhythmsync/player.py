@@ -22,7 +22,8 @@ def make_layout():
     layout.split_column(
         Layout(name="header", size=4),
         Layout(name="main", ratio=1),
-        Layout(name="player", size=3)
+        Layout(name="player", size=1),
+        Layout(name="footer", size=1)
     )
     return layout
 
@@ -32,8 +33,8 @@ def make_header(title, artist, mode = None):
             if mode[0] == "repeat":
                 return Panel(
                     Group(
-                        Align.center(f"[bold]{title}[/bold]"),
-                        Align.center(f"[#5900ab]{artist}[/#5900ab]")
+                        Align.center(f"[bold]{title}"),
+                        Align.center(f"[#5900ab]{artist}")
                         ),
                 title="⭮",
                 title_align="right",
@@ -44,8 +45,8 @@ def make_header(title, artist, mode = None):
                 if mode[0] == "directory-shuffle":
                     return Panel(
                         Group(
-                            Align.center(f"[bold]{title}[/bold]"),
-                            Align.center(f"[#5900ab]{artist}[/#5900ab]")
+                            Align.center(f"[bold]{title}"),
+                            Align.center(f"[#5900ab]{artist}")
                             ),
                     title=f"🔀︎Playing {now} of {total}",
                     title_align="right",
@@ -54,8 +55,8 @@ def make_header(title, artist, mode = None):
                 elif mode[0] == "directory-repeat":
                     return Panel(
                         Group(
-                            Align.center(f"[bold]{title}[/bold]"),
-                            Align.center(f"[#5900ab]{artist}[/#5900ab]")
+                            Align.center(f"[bold]{title}"),
+                            Align.center(f"[#5900ab]{artist}")
                             ),
                     title=f"⭮ Playing {now} of {total}",
                     title_align="right",
@@ -64,8 +65,8 @@ def make_header(title, artist, mode = None):
     
                 return Panel(
                     Group(
-                        Align.center(f"[bold]{title}[/bold]"),
-                        Align.center(f"[#5900ab]{artist}[/#5900ab]")
+                        Align.center(f"[bold]{title}"),
+                        Align.center(f"[#5900ab]{artist}")
                         ),
                 title=f"Playing {now} of {total}",
                 title_align="right",
@@ -73,8 +74,8 @@ def make_header(title, artist, mode = None):
                 )
             
         return Panel(
-        Group(Align.center(f"[bold]{title}[/bold]"),
-              Align.center(f"[#5900ab]{artist}[/#5900ab]")),
+        Group(Align.center(f"[bold]{title}"),
+              Align.center(f"[#5900ab]{artist}")),
               style="white",
     )
 
@@ -82,11 +83,11 @@ def make_header(title, artist, mode = None):
 def make_lyrics(lyrics):
     line1, line2, line3, line4, line5 = lyrics
     return Align.center(Group(
-            Align.center(f"[#1f1f1f]{line1}[#1f1f1f]"),
-            Align.center(f"[#2f2f2f]{line2}[#2f2f2f]"),
-            Align.center(f"[bold #00d0ff]{line3}[/bold #00d0ff]"),
-            Align.center(f"[white]{line4}[white]"),
-            Align.center(f"[#afafaf]{line5}[#afafaf]")
+            Align.center(f"[#1f1f1f][not bold]{line1}"),
+            Align.center(f"[#2f2f2f][not bold]{line2}"),
+            Align.center(f"[#00d0ff][bold]{line3}"),
+            Align.center(f"[white][not bold]{line4}"),
+            Align.center(f"[#afafaf][not bold]{line5}")
             ),
         vertical="middle"
     )
@@ -112,6 +113,10 @@ def make_player():
         BarColumn(bar_width=None),
         TextColumn("{task.fields[suffix]}", justify="right"),
     )
+
+# footer section
+def make_footer(file_path):
+    return Align.center(f"[white][not bold]{file_path}")
 
 # format time in mm:ss.xx format
 def format_time(milliseconds):
@@ -175,6 +180,8 @@ def run_player(file_path, mode=None):
 
         progress = make_player()
         layout["player"].update(progress)
+
+        layout["footer"].update(make_footer(file_path))
 
         # start player
         with Live(layout, refresh_per_second=100):
