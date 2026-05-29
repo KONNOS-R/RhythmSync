@@ -30,7 +30,7 @@ def get_audio_files(path: Path, recursive: bool = False):
     return sorted([f for f in files if is_audio_file(f)])
 
 # single loop mode logic
-def player_loop(file_path: Path, mode: str):
+def player_file(file_path, mode):
     repeat = True
 
     while repeat:
@@ -38,7 +38,7 @@ def player_loop(file_path: Path, mode: str):
         repeat = result[0]
 
 # directory modes logic
-def player_directory(files, mode, repeat_mode=False):
+def player_directory(files, repeat_mode=False):
     if not files:
         print("No audio files found.")
         return
@@ -49,7 +49,7 @@ def player_directory(files, mode, repeat_mode=False):
     if repeat_mode:
         while repeat:
             for j in range(i-1, len(files)):
-                repeat, i = player.run_player(files[j], f"directory {i} {len(files)}")
+                repeat, i = player.run_player(files[j], ("directory", i, len(files)))
                 if i < 1:
                     i = len(files)
                 elif i > len(files):
@@ -58,7 +58,7 @@ def player_directory(files, mode, repeat_mode=False):
     else:
         while i-1 < len(files) and i >= 1 and repeat:
             for j in range(i-1, len(files)):
-                repeat, i = player.run_player(files[j], f"directory {i} {len(files)}")
+                repeat, i = player.run_player(files[j], ("directory", i, len(files)))
                 if i < 1:
                     i = 1
                 break
@@ -72,7 +72,6 @@ def parse_command(raw_command):
 
     command = shlex.split(raw_command)
     cmd = command[0]
-    args = command[1:]
     command_parts = len(command)
 
     # help command
@@ -116,7 +115,7 @@ def parse_command(raw_command):
             file_path = Path(command[1]).expanduser().resolve()
 
             if file_path.exists():
-                player_loop(file_path, "single")
+                player_file(file_path, "single")
                 reset_cli()
             else:
                 print("Please enter a valid file path.")
@@ -132,7 +131,7 @@ def parse_command(raw_command):
 
             # single repeat mode
             if par == "-r":
-                player_loop(file_path, "repeat")
+                player_file(file_path, "repeat")
                 reset_cli()
 
             # directory modes
@@ -143,15 +142,15 @@ def parse_command(raw_command):
 
                 if par == "-d":
                     audio_files.sort()
-                    player_directory(audio_files, "directory")
+                    player_directory(audio_files)
 
                 elif par == "-dr":
                     audio_files.sort()
-                    player_directory(audio_files, "directory", repeat_mode=True)
+                    player_directory(audio_files, repeat_mode=True)
 
                 elif par == "-ds":
                     shuffle(audio_files)
-                    player_directory(audio_files, "directory", repeat_mode=True)
+                    player_directory(audio_files, repeat_mode=True)
 
                 reset_cli()
 
@@ -163,15 +162,15 @@ def parse_command(raw_command):
 
                 if par == "-D":
                     audio_files.sort()
-                    player_directory(audio_files, "directory")
+                    player_directory(audio_files)
 
                 elif par == "-Dr":
                     audio_files.sort()
-                    player_directory(audio_files, "directory", repeat_mode=True)
+                    player_directory(audio_files, repeat_mode=True)
 
                 elif par == "-Ds":
                     shuffle(audio_files)
-                    player_directory(audio_files, "directory", repeat_mode=True)
+                    player_directory(audio_files, repeat_mode=True)
 
                 reset_cli()
 

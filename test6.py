@@ -70,7 +70,6 @@ for i in lyrics:
 
 
 
-
 for i in range(padding):
     print(" "*width)
 
