@@ -138,7 +138,7 @@ def unformat_time(time_str):
     return milliseconds
 
 # music player
-def run_player(file_path, mode=None):
+def run_player(file_path, mode):
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
 
@@ -303,7 +303,7 @@ def run_player(file_path, mode=None):
                 return (True, int(mode[2])+1)
             
     except KeyboardInterrupt:
-        print("Exitting...")
+        print("Exiting...")
         pygame.mixer.music.stop()
         return (False, 0)
     

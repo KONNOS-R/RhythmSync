@@ -196,7 +196,7 @@ def main():
         try:
             command_parser.parse_command(input_cli("> "))
         except KeyboardInterrupt:
-            print("Exitting...")
+            print("Exiting...")
             break
         except Exception as e:
             terminal_disp.clear_screen()

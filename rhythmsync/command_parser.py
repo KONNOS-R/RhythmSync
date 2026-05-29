@@ -114,6 +114,7 @@ def parse_command(raw_command):
         if command_parts == 2:
             file_path = Path(command[1]).expanduser().resolve()
 
+            # single mode
             if file_path.exists():
                 player_file(file_path, "single")
                 reset_cli()
