@@ -40,39 +40,42 @@ def make_header(title, artist, mode = None):
                 title_align="right",
                 style="white",
                 )
-            elif mode[0][:9] == "directory":
-                now, total = mode[1:3]
-                if mode[0] == "directory-shuffle":
-                    return Panel(
-                        Group(
-                            Align.center(f"[bold]{title}"),
-                            Align.center(f"[#5900ab]{artist}")
-                            ),
-                    title=f"🔀︎Playing {now} of {total}",
-                    title_align="right",
-                    style="white",
-                    )
-                elif mode[0] == "directory-repeat":
-                    return Panel(
-                        Group(
-                            Align.center(f"[bold]{title}"),
-                            Align.center(f"[#5900ab]{artist}")
-                            ),
-                    title=f"⭮ Playing {now} of {total}",
-                    title_align="right",
-                    style="white",
-                    )
-    
-                return Panel(
-                    Group(
-                        Align.center(f"[bold]{title}"),
-                        Align.center(f"[#5900ab]{artist}")
-                        ),
-                title=f"Playing {now} of {total}",
-                title_align="right",
-                style="white",
-                )
             
+            elif mode[0] == "directory":
+                now, total = mode[2:4]
+                if mode[1] == "single":
+                    return Panel(
+                        Group(
+                            Align.center(f"[bold]{title}"),
+                            Align.center(f"[#5900ab]{artist}")
+                            ),
+                        title=f"Playing {now} of {total}",
+                        title_align="right",
+                        style="white",
+                    )
+                
+                elif mode[1] == "repeat":
+                    return Panel(
+                        Group(
+                            Align.center(f"[bold]{title}"),
+                            Align.center(f"[#5900ab]{artist}")
+                            ),
+                        title=f"⭮ Playing {now} of {total}",
+                        title_align="right",
+                        style="white",
+                    )
+                
+                elif mode[1] == "shuffle":
+                    return Panel(
+                        Group(
+                            Align.center(f"[bold]{title}"),
+                            Align.center(f"[#5900ab]{artist}")
+                            ),
+                        title=f"🔀︎Playing {now} of {total}",
+                        title_align="right",
+                        style="white",
+                    )
+
         return Panel(
         Group(Align.center(f"[bold]{title}"),
               Align.center(f"[#5900ab]{artist}")),
@@ -239,7 +242,7 @@ def run_player(file_path, mode=None):
                                 
                                 elif mode[0] == "directory":
                                     pygame.mixer.music.stop()
-                                    return (True, int(mode[1])-1)
+                                    return (True, int(mode[2])-1)
                                 
                             #RIGHT arrow
                             elif seq == "[C":
@@ -251,7 +254,7 @@ def run_player(file_path, mode=None):
                                     return (True, 0)
                                 elif mode[0] == "directory":
                                     pygame.mixer.music.stop()
-                                    return (True, int(mode[1])+1)
+                                    return (True, int(mode[2])+1)
                                 
                     elif key in "Ii":
                         if main_status == "lyrics":
@@ -297,7 +300,7 @@ def run_player(file_path, mode=None):
             if mode[0] == "repeat":
                 return (True, 0)
             elif mode[0] == "directory":
-                return (True, int(mode[1])+1)
+                return (True, int(mode[2])+1)
             
     except KeyboardInterrupt:
         print("Exitting...")

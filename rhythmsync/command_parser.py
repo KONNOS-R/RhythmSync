@@ -38,7 +38,7 @@ def player_file(file_path, mode):
         repeat = result[0]
 
 # directory modes logic
-def player_directory(files, repeat_mode=False):
+def player_directory(files, mode):
     if not files:
         print("No audio files found.")
         return
@@ -46,10 +46,10 @@ def player_directory(files, repeat_mode=False):
     repeat = True
     i = 1
 
-    if repeat_mode:
+    if mode in("repeat", "shuffle"):
         while repeat:
             for j in range(i-1, len(files)):
-                repeat, i = player.run_player(files[j], ["directory", i, len(files)])
+                repeat, i = player.run_player(files[j], ["directory", mode, i, len(files)])
                 if i < 1:
                     i = len(files)
                 elif i > len(files):
@@ -58,7 +58,7 @@ def player_directory(files, repeat_mode=False):
     else:
         while i-1 < len(files) and i >= 1 and repeat:
             for j in range(i-1, len(files)):
-                repeat, i = player.run_player(files[j], ["directory", i, len(files)])
+                repeat, i = player.run_player(files[j], ["directory", mode, i, len(files)])
                 if i < 1:
                     i = 1
                 break
@@ -142,15 +142,15 @@ def parse_command(raw_command):
 
                 if par == "-d":
                     audio_files.sort()
-                    player_directory(audio_files)
+                    player_directory(audio_files, "single")
 
                 elif par == "-dr":
                     audio_files.sort()
-                    player_directory(audio_files, repeat_mode=True)
+                    player_directory(audio_files, "repeat")
 
                 elif par == "-ds":
                     shuffle(audio_files)
-                    player_directory(audio_files, repeat_mode=True)
+                    player_directory(audio_files, "shuffle")
 
                 reset_cli()
 
@@ -162,15 +162,15 @@ def parse_command(raw_command):
 
                 if par == "-D":
                     audio_files.sort()
-                    player_directory(audio_files)
+                    player_directory(audio_files, "single")
 
                 elif par == "-Dr":
                     audio_files.sort()
-                    player_directory(audio_files, repeat_mode=True)
+                    player_directory(audio_files, "repeat")
 
                 elif par == "-Ds":
                     shuffle(audio_files)
-                    player_directory(audio_files, repeat_mode=True)
+                    player_directory(audio_files, "shuffle")
 
                 reset_cli()
 
