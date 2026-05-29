@@ -34,7 +34,7 @@ def player_file(file_path, mode):
     repeat = True
 
     while repeat:
-        result = player.run_player(str(file_path), mode)
+        result = player.run_player(str(file_path), [mode])
         repeat = result[0]
 
 # directory modes logic
@@ -49,7 +49,7 @@ def player_directory(files, repeat_mode=False):
     if repeat_mode:
         while repeat:
             for j in range(i-1, len(files)):
-                repeat, i = player.run_player(files[j], ("directory", i, len(files)))
+                repeat, i = player.run_player(files[j], ["directory", i, len(files)])
                 if i < 1:
                     i = len(files)
                 elif i > len(files):
@@ -58,7 +58,7 @@ def player_directory(files, repeat_mode=False):
     else:
         while i-1 < len(files) and i >= 1 and repeat:
             for j in range(i-1, len(files)):
-                repeat, i = player.run_player(files[j], ("directory", i, len(files)))
+                repeat, i = player.run_player(files[j], ["directory", i, len(files)])
                 if i < 1:
                     i = 1
                 break

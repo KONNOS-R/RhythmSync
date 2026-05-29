@@ -229,11 +229,11 @@ def run_player(file_path, mode=None):
 
                             # LEFT arrow
                             if seq == "[D":
-                                if mode == "single":
+                                if mode[0] == "single":
                                     pygame.mixer.music.stop()
                                     return (True, 0)
                                 
-                                elif mode == "repeat":
+                                elif mode[0] == "repeat":
                                     pygame.mixer.music.stop()
                                     return (True, 0)
                                 
@@ -243,10 +243,10 @@ def run_player(file_path, mode=None):
                                 
                             #RIGHT arrow
                             elif seq == "[C":
-                                if mode == "single":
+                                if mode[0] == "single":
                                     pygame.mixer.music.stop()
                                     return (False, 0)
-                                elif mode == "repeat":
+                                elif mode[0] == "repeat":
                                     pygame.mixer.music.stop()
                                     return (True, 0)
                                 elif mode[0] == "directory":
@@ -292,18 +292,18 @@ def run_player(file_path, mode=None):
                         suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>"
                     )
 
-            if mode == "single":
+            if mode[0] == "single":
                 return (False, 0)
-            if mode == "repeat":
+            if mode[0] == "repeat":
                 return (True, 0)
             elif mode[0] == "directory":
                 return (True, int(mode[1])+1)
             
     except KeyboardInterrupt:
+        print("Exitting...")
         pygame.mixer.music.stop()
         return (False, 0)
     
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
         terminal_disp.clear_screen()
-        print("Exitting...")
