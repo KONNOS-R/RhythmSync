@@ -119,7 +119,7 @@ def make_player():
 
 # footer section
 def make_footer(file_path):
-    return Align.center(f"[white][not bold]{file_path}")
+    return Align.center(f"[bold][#5900ab]Rhythm[#00d0ff]Sync[white][not bold] | {file_path}")
 
 # format time in mm:ss.xx format
 def format_time(milliseconds):

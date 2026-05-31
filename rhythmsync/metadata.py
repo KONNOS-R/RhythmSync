@@ -198,7 +198,7 @@ def get_info(file_path):
 
             info[canonical] = value
         
-        info["sample_rate"] = audio.info.sample_rate
+        info["sample_rate"] = f"{audio.info.sample_rate/1000:.2f} kHz"
 
         return info
 
