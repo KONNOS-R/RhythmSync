@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rhythmsync"
+version = "1.1.1"
+description = "CLI music player with synchronized lyrics (LRC) support"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+  {name = "KON/NOS R"}
+]
+
+keywords = ["music", "cli", "audio", "lrc", "player", "terminal"]
+
+dependencies = [
+  "pygame",
+  "rich",
+  "mutagen"
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Environment :: Console",
+  "Operating System :: Unix",
+  "Operating System :: POSIX",
+  "Operating System :: MacOS",
+  "Topic :: Multimedia :: Sound/Audio :: Players",
+  "Topic :: Utilities"
+]
+
+[project.scripts]
+rhythmsync = "rhythmsync.main:main"
+
+[tool.setuptools]
+packages = ["rhythmsync"]
