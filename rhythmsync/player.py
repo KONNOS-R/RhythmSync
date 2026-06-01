@@ -80,7 +80,7 @@ def make_header(title, artist, mode = None):
         Group(Align.center(f"[bold]{title}"),
               Align.center(f"[#5900ab]{artist}")),
               style="white",
-    )
+        )
 
 # lyrics section
 def make_lyrics(lyrics):

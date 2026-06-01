@@ -36,13 +36,15 @@ def player_file(file_path, mode):
     while repeat:
         result = player.run_player(str(file_path), [mode])
         repeat = result[0]
+        
+    reset_cli()
 
 # directory modes logic
 def player_directory(files, mode):
     if not files:
         print("No audio files found.")
         return
-
+    
     repeat = True
     i = 1
 
@@ -55,6 +57,7 @@ def player_directory(files, mode):
                 elif i > len(files):
                     i = 1
                 break
+
     else:
         while i-1 < len(files) and i >= 1 and repeat:
             for j in range(i-1, len(files)):
@@ -64,6 +67,8 @@ def player_directory(files, mode):
                 break
         terminal_disp.clear_screen()
         terminal_disp.logo() 
+    
+    reset_cli()
 
 # command parser
 def parse_command(raw_command):
@@ -117,7 +122,7 @@ def parse_command(raw_command):
             # single mode
             if file_path.exists():
                 player_file(file_path, "single")
-                reset_cli()
+                
             else:
                 print("Please enter a valid file path.")
 
@@ -133,7 +138,6 @@ def parse_command(raw_command):
             # single repeat mode
             if par == "-r":
                 player_file(file_path, "repeat")
-                reset_cli()
 
             # directory modes
             elif par in ("-d", "-dr", "-ds"):
@@ -153,8 +157,6 @@ def parse_command(raw_command):
                     shuffle(audio_files)
                     player_directory(audio_files, "shuffle")
 
-                reset_cli()
-
             # recursive directory modes
             elif par in ("-D", "-Dr", "-Ds"):
 
@@ -172,8 +174,6 @@ def parse_command(raw_command):
                 elif par == "-Ds":
                     shuffle(audio_files)
                     player_directory(audio_files, "shuffle")
-
-                reset_cli()
 
         else:
             print("Please enter a valid file path and parameters.")
