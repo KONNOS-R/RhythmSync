@@ -21,6 +21,7 @@ def getch():
 
     return ch
 
+
 # history redraw logic
 def redraw_input(prompt, buffer):
     global last_rendered_lines
@@ -46,6 +47,7 @@ def redraw_input(prompt, buffer):
     sys.stdout.flush()
 
     last_rendered_lines = lines
+
 
 # path autocompletion
 def complete_path(text):
@@ -112,6 +114,7 @@ def complete_path(text):
 
     return text
 
+
 # cli input
 def input_cli(prompt="> "):
     global history_index
@@ -123,12 +126,12 @@ def input_cli(prompt="> "):
     while True:
         ch = getch()
 
-        #CTRL+C
+        # CTRL+C
         if ch == "\x03":
             print()
             raise KeyboardInterrupt
 
-        #CTRL+Z
+        # CTRL+Z
         elif ch == "\x1a":
             print("\n[Suspended]")
             fd = sys.stdin.fileno()
@@ -136,25 +139,25 @@ def input_cli(prompt="> "):
 
             os.kill(os.getpid(), signal.SIGTSTP)
 
-        #ENTER
+        # ENTER
         elif ch == "\r" or ch == "\n":
             print()
             if buffer.strip():
                 history.append(buffer)
             return buffer
 
-        #BACKSPACE
+        # BACKSPACE
         elif ch == "\x7f":
             if buffer:
                 buffer = buffer[:-1]
                 redraw_input(prompt, buffer)
 
-        #TAB
+        # TAB
         elif ch == "\t":
             buffer = complete_path(buffer)
             redraw_input(prompt, buffer)
 
-        #ESC Sequences
+        # ESC Sequences
         elif ch == "\x1b":
             try:
                 next1 = getch()
@@ -162,14 +165,14 @@ def input_cli(prompt="> "):
             except Exception:
                 continue
 
-            #UP
+            # UP
             if next2 == "A":
                 if history:
                     history_index = max(0, history_index - 1)
                     buffer = history[history_index]
                     redraw_input(prompt, buffer)
 
-            #DOWN
+            # DOWN
             elif next2 == "B":
                 if history:
                     history_index = min(len(history) - 1, history_index + 1)
@@ -179,6 +182,7 @@ def input_cli(prompt="> "):
         else:
             buffer += ch
             redraw_input(prompt, buffer)
+
 
 # main program
 def main():
@@ -202,6 +206,7 @@ def main():
             terminal_disp.clear_screen()
             terminal_disp.logo()
             print(f"Error: {e}")
+
 
 # entry point
 if __name__ == "__main__":

@@ -27,6 +27,7 @@ def make_layout():
     )
     return layout
 
+
 # header section
 def make_header(title, artist, mode = None):
         if mode is not None:
@@ -82,6 +83,7 @@ def make_header(title, artist, mode = None):
               style="white",
         )
 
+
 # lyrics section
 def make_lyrics(lyrics):
     line1, line2, line3, line4, line5 = lyrics
@@ -94,6 +96,7 @@ def make_lyrics(lyrics):
             ),
         vertical="middle"
     )
+
 
 # file info section
 def make_file_info(info):
@@ -109,6 +112,7 @@ def make_file_info(info):
         vertical="middle"
     )
 
+
 # player section
 def make_player():
     return Progress(
@@ -117,9 +121,11 @@ def make_player():
         TextColumn("{task.fields[suffix]}", justify="right"),
     )
 
+
 # footer section
 def make_footer(file_path):
     return Align.center(f"[bold][#5900ab]Rhythm[#00d0ff]Sync[white][not bold] | {file_path}")
+
 
 # format time in mm:ss.xx format
 def format_time(milliseconds):
@@ -129,6 +135,7 @@ def format_time(milliseconds):
     hund = int(mil // 10)
     return f"{min:02}:{sec:02}.{hund:02}"
 
+
 # format time to milliseconds
 def unformat_time(time_str):
     min, sec = time_str.split(":")
@@ -136,6 +143,7 @@ def unformat_time(time_str):
     milliseconds = (
         int(min) * 60 * 1000 + int(sec) * 1000 + int(hund) * 10)
     return milliseconds
+
 
 # music player
 def run_player(file_path, mode):

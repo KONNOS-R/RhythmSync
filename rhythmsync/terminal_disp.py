@@ -8,6 +8,7 @@ from rich.align import Align
 def clear_screen():
     os.system('clear')
 
+
 # print logo
 def logo():
     if os.get_terminal_size()[0] < 128:
@@ -38,6 +39,7 @@ def logo():
 [#5900ab]                     \______/                                   [#00d0ff]           \______/                     
 '''
     ))
+
 
 # print help message
 def help_msg():

@@ -19,6 +19,7 @@ def get_tag_map():
         "genre": ["genre", "TCON", "©gen"]
     }
 
+
 # get meatadata for info command
 def get_metadata(file_path, tags=None):
     try:
@@ -62,6 +63,7 @@ def get_metadata(file_path, tags=None):
     except Exception as e:
         print(f"Metadata error: {e}")
         return None
+
 
 # get title and artist info for the player
 def get_ti_ar(file_path):
@@ -111,6 +113,7 @@ def get_ti_ar(file_path):
         print(f"Metadata error: {e}")
         return f"Unknown Title", "Unknown Artist"
 
+
 # get lrc data from the audio file
 def get_lrc(file_path):
     try:
@@ -138,6 +141,7 @@ def get_lrc(file_path):
         print(f"Player error: Error extracting LRC data: {e}")
         return None
 
+
 # format lyrics for the player
 def format_lrc(lrc_data):
     timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
@@ -159,6 +163,8 @@ def format_lrc(lrc_data):
             x[1] = "♫"
     return lyrics
 
+
+# get meatadata for info panel (player)
 def get_info(file_path):
     try:
         audio = File(file_path)

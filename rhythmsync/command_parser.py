@@ -16,9 +16,11 @@ def reset_cli():
     terminal_disp.clear_screen()
     terminal_disp.logo()
 
+
 # supported extensions
 def is_audio_file(path: Path):
     return path.is_file() and path.suffix.lower() in (".mp3", ".flac", ".wav", ".ogg")
+
 
 # returns audio files in dir
 def get_audio_files(path: Path, recursive: bool = False):
@@ -29,6 +31,7 @@ def get_audio_files(path: Path, recursive: bool = False):
 
     return sorted([f for f in files if is_audio_file(f)])
 
+
 # single loop mode logic
 def player_file(file_path, mode):
     repeat = True
@@ -38,6 +41,7 @@ def player_file(file_path, mode):
         repeat = result[0]
         
     reset_cli()
+
 
 # directory modes logic
 def player_directory(files, mode):
@@ -69,6 +73,7 @@ def player_directory(files, mode):
         terminal_disp.logo() 
     
     reset_cli()
+
 
 # command parser
 def parse_command(raw_command):

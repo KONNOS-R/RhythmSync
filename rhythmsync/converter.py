@@ -15,7 +15,6 @@ def convert(input_file, output_file):
                 "-c:a", "libmp3lame",
                 "-b:a", "320k",
 
-                # better compatibility
                 "-id3v2_version", "3"
             ]
 
