@@ -3,6 +3,7 @@ import sys
 import termios
 import tty
 import signal
+import re
 
 import rhythmsync.terminal_disp as terminal_disp
 import rhythmsync.command_parser as command_parser
@@ -50,26 +51,25 @@ def redraw_input(prompt, buffer):
 
 
 # path autocompletion
-def complete_path(text):
+def complete_path(text: str) -> str:
     if not text:
         return text
 
-    def escape_spaces(s: str) -> str:
-        return s.replace(" ", r"\ ")
+    escape_chars_re = re.compile(r'([ \t\n\r\f\v\\\'\"&|()<>!*?~])')
 
-    def unescape_spaces(s: str) -> str:
-        return s.replace(r"\ ", " ")
+    def escape_path(path: str) -> str:
+        return escape_chars_re.sub(r'\\\1', path)
+
+    def unescape_path(path: str) -> str:
+        return path.replace('\\', '')
 
     def complete_fragment(fragment):
-        fragment = fragment.strip()
-        fragment = fragment.replace('"', '').replace("'", "")
+        raw_path = unescape_path(fragment)
+        expanded_path = os.path.expanduser(raw_path)
 
-        fragment = unescape_spaces(fragment)
-
-        fragment = os.path.expanduser(fragment)
-
-        dir_name, prefix = os.path.split(fragment)
-
+        breakslash = False
+        
+        dir_name, prefix = os.path.split(expanded_path)
         if not dir_name:
             dir_name = "."
 
@@ -78,39 +78,35 @@ def complete_path(text):
         except OSError:
             return None
 
-        matches = [e for e in entries if e.name.startswith(prefix)]
-
+        matches = [e.name for e in entries if e.name.startswith(prefix)]
         if not matches:
             return None
 
         if len(matches) == 1:
-            chosen_name = matches[0].name
+            chosen_name = matches[0]
         else:
-            common = os.path.commonprefix([m.name for m in matches])
+            common = os.path.commonprefix(matches)
             if not common or common == prefix:
                 return None
             chosen_name = common
+            breakslash = True
 
         completed = os.path.join(dir_name, chosen_name)
+        
+        if os.path.isdir(completed) and not breakslash:
+            completed += os.sep
 
-        try:
-            if os.path.isdir(completed):
-                completed += os.sep
-        except Exception:
-            pass
+        return escape_path(completed)
 
-        return escape_spaces(completed)
-
-    parts = text.split()
-
-    for k in range(len(parts), 0, -1):
-        base = " ".join(parts[:-k])
-        fragment = " ".join(parts[-k:])
-
-        completed = complete_fragment(fragment)
-
+    parts = re.split(r'(?<!\\) ', text)
+    
+    if parts:
+        last_part = parts[-1]
+        completed = complete_fragment(last_part)
+        
         if completed:
-            return (base + " " if base else "") + completed
+            base = " ".join(parts[:-1])
+            return f"{base} {completed}".strip()
 
     return text
 

@@ -29,53 +29,52 @@ def make_layout():
 
 
 # header section
-def make_header(title, artist, mode = None):
-        if mode is not None:
-            if mode[0] == "repeat":
+def make_header(title, artist, mode):
+        if mode[0] == "repeat":
+            return Panel(
+                Group(
+                    Align.center(f"[bold]{title}"),
+                    Align.center(f"[#5900ab]{artist}")
+                    ),
+            title="⭮",
+            title_align="right",
+            style="white",
+            )
+        
+        elif mode[0] == "directory":
+            now, total = mode[2:4]
+            if mode[1] == "single":
                 return Panel(
                     Group(
                         Align.center(f"[bold]{title}"),
                         Align.center(f"[#5900ab]{artist}")
                         ),
-                title="⭮",
-                title_align="right",
-                style="white",
+                    title=f"Playing {now} of {total}",
+                    title_align="right",
+                    style="white",
                 )
             
-            elif mode[0] == "directory":
-                now, total = mode[2:4]
-                if mode[1] == "single":
-                    return Panel(
-                        Group(
-                            Align.center(f"[bold]{title}"),
-                            Align.center(f"[#5900ab]{artist}")
-                            ),
-                        title=f"Playing {now} of {total}",
-                        title_align="right",
-                        style="white",
-                    )
-                
-                elif mode[1] == "repeat":
-                    return Panel(
-                        Group(
-                            Align.center(f"[bold]{title}"),
-                            Align.center(f"[#5900ab]{artist}")
-                            ),
-                        title=f"⭮ Playing {now} of {total}",
-                        title_align="right",
-                        style="white",
-                    )
-                
-                elif mode[1] == "shuffle":
-                    return Panel(
-                        Group(
-                            Align.center(f"[bold]{title}"),
-                            Align.center(f"[#5900ab]{artist}")
-                            ),
-                        title=f"🔀︎Playing {now} of {total}",
-                        title_align="right",
-                        style="white",
-                    )
+            elif mode[1] == "repeat":
+                return Panel(
+                    Group(
+                        Align.center(f"[bold]{title}"),
+                        Align.center(f"[#5900ab]{artist}")
+                        ),
+                    title=f"⭮ Playing {now} of {total}",
+                    title_align="right",
+                    style="white",
+                )
+            
+            elif mode[1] == "shuffle":
+                return Panel(
+                    Group(
+                        Align.center(f"[bold]{title}"),
+                        Align.center(f"[#5900ab]{artist}")
+                        ),
+                    title=f"🔀︎Playing {now} of {total}",
+                    title_align="right",
+                    style="white",
+                )
 
         return Panel(
         Group(Align.center(f"[bold]{title}"),

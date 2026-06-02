@@ -11,7 +11,7 @@ for i in range(height):
 
 
 # test for new lyric system
-lyric_index = 9
+lyric_index = int(input("lyric index:"))
 lyrics = [
     [1, "[00:15.60]I don't smoke except for when I'm missing you"],
     [2, "[00:21.93]To remember your mouth, how it tasted true"],
