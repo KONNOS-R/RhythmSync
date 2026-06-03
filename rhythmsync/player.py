@@ -30,57 +30,20 @@ def make_layout():
 
 # header section
 def make_header(title, artist, mode):
-        if mode[0] == "repeat":
-            return Panel(
-                Group(
-                    Align.center(f"[bold]{title}"),
-                    Align.center(f"[#5900ab]{artist}")
-                    ),
-            title="⭮",
-            title_align="right",
-            style="white",
-            )
-        
-        elif mode[0] == "directory":
-            now, total = mode[2:4]
-            if mode[1] == "single":
-                return Panel(
-                    Group(
-                        Align.center(f"[bold]{title}"),
-                        Align.center(f"[#5900ab]{artist}")
-                        ),
-                    title=f"Playing {now} of {total}",
-                    title_align="right",
-                    style="white",
-                )
-            
-            elif mode[1] == "repeat":
-                return Panel(
-                    Group(
-                        Align.center(f"[bold]{title}"),
-                        Align.center(f"[#5900ab]{artist}")
-                        ),
-                    title=f"⭮ Playing {now} of {total}",
-                    title_align="right",
-                    style="white",
-                )
-            
-            elif mode[1] == "shuffle":
-                return Panel(
-                    Group(
-                        Align.center(f"[bold]{title}"),
-                        Align.center(f"[#5900ab]{artist}")
-                        ),
-                    title=f"🔀︎Playing {now} of {total}",
-                    title_align="right",
-                    style="white",
-                )
+    content = Group(Align.center(f"[bold]{title}"), Align.center(f"[#5900ab]{artist}"))
+    icons = {"repeat": "⭮ ", "shuffle": "🔀︎"}
+    
+    header_title = None
 
-        return Panel(
-        Group(Align.center(f"[bold]{title}"),
-              Align.center(f"[#5900ab]{artist}")),
-              style="white",
-        )
+    if mode[0] == "repeat":
+        header_title = icons["repeat"]
+
+    elif mode[0] == "directory":
+        now, total = mode[2:4]
+        icon = icons.get(mode[1], "")
+        header_title = f"{icon}Playing {now} of {total}".strip()
+
+    return Panel(content, title=header_title, title_align="right", style="white")
 
 
 # lyrics section
