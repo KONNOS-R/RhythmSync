@@ -7,6 +7,7 @@ from rich.console import Group
 from rich.panel import Panel
 from rich.progress import Progress, BarColumn, TextColumn
 from rich.layout import Layout
+from mutagen import File
 import sys
 import termios
 import tty
@@ -89,6 +90,11 @@ def make_footer(file_path):
     return Align.center(f"[bold][#5900ab]Rhythm[#00d0ff]Sync[white][not bold] | {file_path}")
 
 
+# get the total length of the audio file
+def get_duration(file_path):
+    audio = File(file_path)
+    return int(audio.info.length * 1000) 
+
 # format time in mm:ss.xx format
 def format_time(milliseconds):
     min = int((milliseconds // 1000) // 60)
@@ -121,7 +127,7 @@ def run_player(file_path, mode):
         pygame.mixer.music.load(file_path)
         pygame.mixer.music.play()
 
-        total_length = int(pygame.mixer.Sound(file_path).get_length() * 1000)
+        total_length = get_duration(file_path)
 
         title, artist = metadata.get_ti_ar(file_path)
 
