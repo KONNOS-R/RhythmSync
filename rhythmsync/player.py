@@ -48,18 +48,26 @@ def make_header(title, artist, mode):
 
 
 # lyrics section
-def make_lyrics(lyrics):
-    line1, line2, line3, line4, line5 = lyrics
+def make_lyrics(lyrics, index, window=2):
+    lyric_lines = []
+
+    for offset in range(-window, window + 1):
+        idx = index + offset
+
+        if 0 <= idx < len(lyrics):
+            lyric_lines.append(lyrics[idx][1])
+        else:
+            lyric_lines.append("")
+    
     return Align.center(Group(
-            Align.center(f"[#1f1f1f][not bold]{line1}"),
-            Align.center(f"[#2f2f2f][not bold]{line2}"),
-            Align.center(f"[#00d0ff][bold]{line3}"),
-            Align.center(f"[white][not bold]{line4}"),
-            Align.center(f"[#afafaf][not bold]{line5}")
+            Align.center(f"[#1f1f1f][not bold]{lyric_lines[0]}"),
+            Align.center(f"[#2f2f2f][not bold]{lyric_lines[1]}"),
+            Align.center(f"[#00d0ff][bold]{lyric_lines[2]}"),
+            Align.center(f"[white][not bold]{lyric_lines[3]}"),
+            Align.center(f"[#afafaf][not bold]{lyric_lines[4]}")
             ),
         vertical="middle"
     )
-
 
 # file info section
 def make_file_info(info):
@@ -93,6 +101,7 @@ def make_footer(file_path):
 # get the total length of the audio file
 def get_duration(file_path):
     audio = File(file_path)
+
     return int(audio.info.length * 1000) 
 
 
@@ -102,6 +111,7 @@ def format_time(milliseconds):
     sec = (milliseconds // 1000) % 60
     mil = milliseconds % 1000
     hund = int(mil // 10)
+
     return f"{min:02}:{sec:02}.{hund:02}"
 
 
@@ -111,6 +121,7 @@ def unformat_time(time_str):
     sec, hund = sec.split(".")
     milliseconds = (
         int(min) * 60 * 1000 + int(sec) * 1000 + int(hund) * 10)
+    
     return milliseconds
 
 
@@ -155,13 +166,7 @@ def run_player(file_path, mode):
         layout["header"].update(make_header(title, artist, mode))
 
         if main_status == "lyrics":
-            layout["main"].update(make_lyrics((
-                    lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
-                    lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
-                    lyrics[lyric_index][1],
-                    lyrics[lyric_index + 1][1] if lyric_index < len(lyrics) - 1 else "",
-                    lyrics[lyric_index + 2][1] if lyric_index < len(lyrics) - 2 else ""
-                )))
+            layout["main"].update(make_lyrics(lyrics, lyric_index))
         elif main_status == "info":
             layout["main"].update(make_file_info(metadata.get_info(file_path)))
 
@@ -243,13 +248,7 @@ def run_player(file_path, mode):
                             main_status = "lyrics"
 
                             if lyrics_exist and main_status == "lyrics":
-                                layout["main"].update(make_lyrics((
-                                    lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
-                                    lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
-                                    lyrics[lyric_index][1],
-                                    lyrics[lyric_index + 1][1] if lyric_index < len(lyrics) - 1 else "",
-                                    lyrics[lyric_index + 2][1] if lyric_index < len(lyrics) - 2 else ""
-                                )))
+                                layout["main"].update(make_lyrics(lyrics, lyric_index))
                             else:
                                 layout["main"].update(Align.center("No lyrics to display", vertical="middle"))
                             
@@ -257,13 +256,7 @@ def run_player(file_path, mode):
                     if lyrics_exist and lyric_index < len(lyrics) - 1 and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
                         lyric_index += 1
 
-                        layout["main"].update(make_lyrics((
-                            lyrics[lyric_index - 2][1] if lyric_index > 1 else "",
-                            lyrics[lyric_index - 1][1] if lyric_index > 0 else "",
-                            lyrics[lyric_index][1],
-                            lyrics[lyric_index + 1][1] if lyric_index < len(lyrics) - 1 else "",
-                            lyrics[lyric_index + 2][1] if lyric_index < len(lyrics) - 2 else ""
-                        )))
+                        layout["main"].update(make_lyrics(lyrics, lyric_index))
 
                     progress.update(
                         playback,
