@@ -62,9 +62,11 @@ def make_lyrics(lyrics, index, window=2):
 
     #styles
     LYRIC_STYLES = {
-        "prev": "[#2f2f2f][not bold]{}[/not bold][/#2f2f2f]",
+        "prev2": "[#1f1f1f][not bold]{}[/not bold][/#1f1f1f]",
+        "prev1": "[#2f2f2f][not bold]{}[/not bold][/#2f2f2f]",
         "current": "[#00d0ff][bold]{}[/bold][/#00d0ff]",
-        "next": "[#ffffff][not bold]{}[/not bold][/#ffffff]"
+        "next1": "[#ffffff][not bold]{}[/not bold][/#ffffff]",
+        "next2": "[#afafaf][not bold]{}[/not bold][/#afafaf]"
     }
     
 
@@ -81,10 +83,14 @@ def make_lyrics(lyrics, index, window=2):
         
         if distance == 0:
             style = LYRIC_STYLES["current"]
-        elif distance <= -1:
-            style = LYRIC_STYLES["prev"]
-        elif distance >= 1:
-            style = LYRIC_STYLES["next"]
+        elif distance == -1:
+            style = LYRIC_STYLES["prev1"]
+        elif distance == -2:
+            style = LYRIC_STYLES["prev2"]
+        elif distance == 1:
+            style = LYRIC_STYLES["next1"]
+        elif distance == 2:
+            style = LYRIC_STYLES["next2"]
 
         styled_lines.append(Align.center(style.format(line)))
     
