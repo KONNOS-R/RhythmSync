@@ -49,16 +49,48 @@ def make_header(title, artist, mode):
 
 # lyrics section
 def make_lyrics(lyrics, index, window=2):
-    lyric_lines = []
+    #make lyric lines list
+    lyrics_lines = []
 
     for offset in range(-window, window + 1):
         idx = index + offset
 
         if 0 <= idx < len(lyrics):
-            lyric_lines.append(lyrics[idx][1])
+            lyrics_lines.append(lyrics[idx][1])
         else:
-            lyric_lines.append("")
+            lyrics_lines.append("")
+
+    #styles
+    LYRIC_STYLES = {
+        "prev": "[#2f2f2f][not bold]{}[/not bold][/#2f2f2f]",
+        "current": "[#00d0ff][bold]{}[/bold][/#00d0ff]",
+        "next": "[#ffffff][not bold]{}[/not bold][/#ffffff]"
+    }
     
+
+
+    middle_idx = len(lyrics_lines) // 2
+    styled_lines = []
+    
+    for i, line in enumerate(lyrics_lines):
+        if not line:
+            styled_lines.append(Align.center(""))
+            continue
+            
+        distance = i - middle_idx
+        
+        if distance == 0:
+            style = LYRIC_STYLES["current"]
+        elif distance <= -1:
+            style = LYRIC_STYLES["prev"]
+        elif distance >= 1:
+            style = LYRIC_STYLES["next"]
+
+        styled_lines.append(Align.center(style.format(line)))
+    
+    return Align.center(Group(*styled_lines), vertical="middle")
+
+    '''
     return Align.center(Group(
             Align.center(f"[#1f1f1f][not bold]{lyric_lines[0]}"),
             Align.center(f"[#2f2f2f][not bold]{lyric_lines[1]}"),
@@ -68,6 +100,7 @@ def make_lyrics(lyrics, index, window=2):
             ),
         vertical="middle"
     )
+    '''
 
 # file info section
 def make_file_info(info):
@@ -255,6 +288,8 @@ def run_player(file_path, mode):
                 if not paused:
                     if lyrics_exist and lyric_index < len(lyrics) - 1 and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
                         lyric_index += 1
+
+                        height = os.get_terminal_size()[1]
 
                         layout["main"].update(make_lyrics(lyrics, lyric_index))
 
