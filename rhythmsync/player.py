@@ -95,6 +95,7 @@ def get_duration(file_path):
     audio = File(file_path)
     return int(audio.info.length * 1000) 
 
+
 # format time in mm:ss.xx format
 def format_time(milliseconds):
     min = int((milliseconds // 1000) // 60)
