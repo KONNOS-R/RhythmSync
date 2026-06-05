@@ -49,7 +49,7 @@ def make_header(title, artist, mode):
 
 # lyrics section
 def make_lyrics(lyrics, index, window=2):
-    #make lyric lines list
+    # get lyric lines list
     lyrics_lines = []
 
     for offset in range(-window, window + 1):
@@ -60,7 +60,7 @@ def make_lyrics(lyrics, index, window=2):
         else:
             lyrics_lines.append("")
 
-    #styles
+    # styles
     LYRIC_STYLES = {
         "prev2": "[#1f1f1f][not bold]{}[/not bold][/#1f1f1f]",
         "prev1": "[#2f2f2f][not bold]{}[/not bold][/#2f2f2f]",
@@ -68,9 +68,8 @@ def make_lyrics(lyrics, index, window=2):
         "next1": "[#ffffff][not bold]{}[/not bold][/#ffffff]",
         "next2": "[#afafaf][not bold]{}[/not bold][/#afafaf]"
     }
-    
 
-
+    # format lyric lines list
     middle_idx = len(lyrics_lines) // 2
     styled_lines = []
     

@@ -4,26 +4,26 @@ from rich.console import Console
 from typing import Dict, List
 console = Console()
 
-CODEC_CONFIG: Dict[str, List[str]] = {
-    ".mp3": [
-        "-c:a", "libmp3lame",
-        "-b:a", "320k",
-        "-id3v2_version", "3"
-    ],
-    ".ogg": [
-        "-c:a", "libvorbis",
-        "-q:a", "6"
-    ],
-    ".flac": [
-        "-c:a", "flac"
-    ],
-    ".wav": [
-        "-c:a", "pcm_s16le"
-    ]
-}
-
 
 def convert(input_file: Path, output_file: Path) -> bool:
+    CODEC_CONFIG: Dict[str, List[str]] = {
+        ".mp3": [
+            "-c:a", "libmp3lame",
+            "-b:a", "320k",
+            "-id3v2_version", "3"
+        ],
+        ".ogg": [
+            "-c:a", "libvorbis",
+            "-q:a", "6"
+        ],
+        ".flac": [
+            "-c:a", "flac"
+        ],
+        ".wav": [
+            "-c:a", "pcm_s16le"
+        ]
+    }
+
     if not input_file.exists():
         console.print(f"[bold red]Conversion Error:[/bold red] Input file not found at '{input_file}'")
         return False

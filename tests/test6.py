@@ -48,6 +48,8 @@ padding = 2
 lyric_lines = height - header - player - footer - padding*2
 print(f"{lyric_lines} of {height}")
 
+
+
 for i in range(header):
     print("▓"*width)
 
