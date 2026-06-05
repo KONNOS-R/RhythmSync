@@ -69,3 +69,11 @@ def help_msg():
                   
 [green]convert[/green] [cyan]{input path} {output path}[/cyan] Converts an audio file to another format (FFmpeg required)
 ''')
+
+
+
+def error_msg(content, title = None):
+    if title != None:
+        console.print(f"[bold red]{title} Error:[/bold red] {content}")
+    else:
+        console.print(f"[bold red]Error:[/bold red] {content}")

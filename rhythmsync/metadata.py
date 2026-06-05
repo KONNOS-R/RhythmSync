@@ -1,6 +1,8 @@
 from mutagen import File
 from re import match
 
+import rhythmsync.terminal_disp as terminal_disp
+
 
 # tag map
 def get_tag_map():
@@ -25,7 +27,7 @@ def get_metadata(file_path, tags=None):
     try:
         audio = File(file_path)
         if audio is None or audio.tags is None:
-            print(f"Metadata error: Unsupported or unreadable file: {file_path}")
+            terminal_disp.error_msg(f"Unsupported or unreadable file: {file_path}", "Metadata")
             return None
         tag_map = get_tag_map()
         reverse_map = {}
@@ -61,7 +63,7 @@ def get_metadata(file_path, tags=None):
         return "\n".join(lines)
 
     except Exception as e:
-        print(f"Metadata error: {e}")
+        terminal_disp.error_msg(e, "Metadata")
         return None
 
 
@@ -110,11 +112,10 @@ def get_ti_ar(file_path):
         return title, artist
     
     except Exception as e:
-        print(f"Metadata error: {e}")
         return f"Unknown Title", "Unknown Artist"
 
 
-# get lrc data from the audio file
+# get lrc data from the audio file for the player
 def get_lrc(file_path):
     try:
         audio = File(file_path)
@@ -138,7 +139,6 @@ def get_lrc(file_path):
         return None
 
     except Exception as e:
-        print(f"Player error: Error extracting LRC data: {e}")
         return None
 
 
@@ -169,7 +169,6 @@ def get_info(file_path):
     try:
         audio = File(file_path)
         if audio is None or audio.tags is None:
-            print(f"Metadata error: Unsupported or unreadable file: {file_path}")
             return None
         tag_map = get_tag_map()
         reverse_map = {}
@@ -209,5 +208,4 @@ def get_info(file_path):
         return info
 
     except Exception as e:
-        print(f"Metadata error: {e}")
         return None

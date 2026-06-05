@@ -191,10 +191,11 @@ def parse_command(raw_command):
             tags = tuple(command[2:]) or None
 
             if file_path.exists():
-                console.print(
-                    metadata.get_metadata(file_path, tags),
-                    highlight=False
-                )
+                file_info =  metadata.get_metadata(file_path, tags)
+
+                if file_info:
+                    console.print(file_info, highlight=False)
+
             else:
                 print("Please enter a valid file path.")
 

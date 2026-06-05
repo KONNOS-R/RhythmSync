@@ -199,9 +199,8 @@ def main():
             print("Exiting...")
             break
         except Exception as e:
-            terminal_disp.clear_screen()
-            terminal_disp.logo()
-            print(f"Error: {e}")
+            terminal_disp.error_msg(e)
+            break
 
 
 # entry point

@@ -1,8 +1,10 @@
 import subprocess
 from pathlib import Path
-from rich.console import Console
 from typing import Dict, List
+from rich.console import Console
 console = Console()
+
+import rhythmsync.terminal_disp as terminal_disp
 
 
 def convert(input_file: Path, output_file: Path) -> bool:
@@ -25,14 +27,14 @@ def convert(input_file: Path, output_file: Path) -> bool:
     }
 
     if not input_file.exists():
-        console.print(f"[bold red]Conversion Error:[/bold red] Input file not found at '{input_file}'")
+        terminal_disp.error_msg(f"Input file not found at '{input_file}'", "Conversion")
         return False
 
     suffix = output_file.suffix.lower()
     codec_args = CODEC_CONFIG.get(suffix)
 
     if codec_args is None:
-        console.print(f"[bold red]Conversion Error:[/bold red] Unsupported output format '{suffix}'.")
+        terminal_disp.error_msg(f"Unsupported output format '{suffix}'", "Conversion")
         return False
 
     try:
@@ -46,7 +48,7 @@ def convert(input_file: Path, output_file: Path) -> bool:
             str(output_file)
         ]
 
-        console.print(f"[blue]Starting conversion...[/blue]")
+        console.print("Starting conversion...")
 
         process = subprocess.Popen(
             command,
@@ -67,7 +69,7 @@ def convert(input_file: Path, output_file: Path) -> bool:
 
         if process.returncode != 0:
             error_log = "\n".join(output[-15:])
-            console.print(f"\n[bold red]Conversion Error:[/bold red] Conversion failed (Exit Code {process.returncode}).")
+            terminal_disp.error_msg(f"Conversion failed (Exit Code {process.returncode})", "Conversion")
             return False
 
         console.print(f"[green bold]Converted successfully:[/green bold]")
@@ -75,15 +77,13 @@ def convert(input_file: Path, output_file: Path) -> bool:
         return True
 
     except FileNotFoundError:
-        console.print("\n[bold red]System Error:[/bold red] FFmpeg command not found.")
-        console.print("[yellow]Please ensure FFmpeg is installed and accessible in your system's PATH.[/yellow]")
+        terminal_disp.error_msg(f"FFmpeg not found.\n[yellow]Please ensure FFmpeg is installed and accessible in your system's PATH.[/yellow]", "Conversion")
         return False
 
     except subprocess.CalledProcessError as e:
-        console.print(f"\n[bold red]Conversion Error:[/bold red] FFmpeg failed unexpectedly.")
-        console.print(f"Details: {e}")
+        terminal_disp.error_msg(f"FFmpeg failed unexpectedly.\nDetails: {e}", "Conversion")
         return False
 
     except Exception as e:
-        console.print(f"\n[bold red]Conversion Error:[/bold red] {e}")
+        terminal_disp.error_msg(e, "Conversion")
         return False
