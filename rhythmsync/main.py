@@ -110,7 +110,7 @@ def complete_path(text: str) -> str:
 
     return text
 
-
+    
 # cli input
 def input_cli(prompt="> "):
     global history_index
