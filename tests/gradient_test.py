@@ -20,7 +20,7 @@ def hex_gradient(hex_a, hex_b, increment):
 
 
 
-hex_gradient("#ffffff", "#000000", 4)
+hex_gradient("#000000", "#ffffff", 4)
 '''
 
 
@@ -53,20 +53,23 @@ def hex_gradient(color1, color2, steps):
     
     return gradient
 
-#print(hex_gradient("#ffffff", "#000000", 10))
+#print(hex_gradient("#000000", "#ffffff", 4))
 
-a = hex_gradient("#ff0000", "#0099FF", 40)
+a = hex_gradient("#ff0000", "#0099FF", 60)
 
 
 from rich.console import Console
 console = Console()
 
-for i in range(40):
+for i in range(60):
     console.print(f"[{a[i]}]█",end="")
 
 print("\n")
 
-logo = r'''[bold]
+
+
+if True:
+    logo = r'''[bold]
  _____  _           _   _                _____                  
 |  __ \| |         | | | |              / ____|                 
 | |__) | |__  _   _| |_| |__  _ __ ___ | (___  _   _ _ __   ___ 
@@ -76,6 +79,24 @@ logo = r'''[bold]
                __/ |                            __/ |           
               |___/                            |___/            
 '''
+else:
+    logo = r'''[bold]
+ /███████  /██                   /██     /██                      /██████                               
+| ██__ '██| ██                  | ██    | ██                     /██__ '██                              
+| ██  \ ██| ███████  /██   /██ /██████  | ███████  /██████/████ | ██  \__/ /██   /██ /███████   /███████
+| ███████/| ██__ '██| ██  | ██|_ '██_/  | ██__ '██| ██_ '██_ '██|  ██████ | ██  | ██| ██__ '██ /██_____/
+| ██__ '██| ██  \ ██| ██  | ██  | ██    | ██  \ ██| ██ \ ██ \ ██ \____ '██| ██  | ██| ██  \ ██| ██      
+| ██  \ ██| ██  | ██| ██  | ██  | ██ /██| ██  | ██| ██ | ██ | ██ /██  \ ██| ██  | ██| ██  | ██| ██      
+| ██  | ██| ██  | ██|  ███████  | '████/| ██  | ██| ██ | ██ | ██| '██████/|  ███████| ██  | ██| '███████
+|__/  |__/|__/  |__/ \____ '██   \___/  |__/  |__/|__/ |__/ |__/ \______/  \____ '██|__/  |__/ \_______/
+                     /██  | ██                                             /██  | ██                    
+                    | '██████/                                            | '██████/                    
+                     \______/                                              \______/                     
+'''
+
+
+
+
 
 lines = logo.splitlines()
 
@@ -83,7 +104,8 @@ length = len(lines[1])
 gradient = hex_gradient("#5900ab", "#00d0ff", length)
 print(gradient)
 
-for i in range(1,9):
+for i in range(1, len(lines)):
     for j in range(length):
-        console.print(f"[{gradient[j]}]{lines[i][j]}", end="")
+        
+        print(f"[{gradient[j]}]{lines[i][j]}", end="")
     console.print("\n",end="")
