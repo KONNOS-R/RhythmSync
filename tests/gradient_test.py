@@ -25,16 +25,14 @@ def hex_gradient(color1, color2, steps):
 
 
 
-
-
 """
 from rich.console import Console
 console = Console()
 
 
 #logos
-if True:
-    logo = r'''[bold]
+if False:
+    logo = r'''
  _____  _           _   _                _____                  
 |  __ \| |         | | | |              / ____|                 
 | |__) | |__  _   _| |_| |__  _ __ ___ | (___  _   _ _ __   ___ 
@@ -45,7 +43,7 @@ if True:
               |___/                            |___/            
 '''
 else:
-    logo = r'''[bold]
+    logo = r'''
  /███████  /██                   /██     /██                      /██████                               
 | ██__ '██| ██                  | ██    | ██                     /██__ '██                              
 | ██  \ ██| ███████  /██   /██ /██████  | ███████  /██████/████ | ██  \__/ /██   /██ /███████   /███████
@@ -65,11 +63,13 @@ lines = logo.splitlines()
 
 length = len(lines[1])
 gradient = hex_gradient("#5900ab", "#00d0ff", length)
-print(gradient)
 
+
+colored_logo = "[bold]\n"
 for i in range(1, len(lines)):
     for j in range(length):
-        
-        console.print(f"[{gradient[j]}]{lines[i][j]}", end="")
-    console.print("\n",end="")
+        colored_logo += f"[{gradient[j]}]{lines[i][j] if lines[i][j] != "\\" else "\\\\"}"
+    colored_logo += "\n"
+
+console.print(colored_logo)
 """
