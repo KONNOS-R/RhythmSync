@@ -75,7 +75,7 @@ def make_lyrics(lyrics, index, window=2):
     
     for i, line in enumerate(lyrics_lines):
         if not line:
-            styled_lines.append(Align.center(""))
+            styled_lines.append(Align.center(" "))
             continue
             
         distance = i - middle_idx

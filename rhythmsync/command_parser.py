@@ -9,6 +9,7 @@ import rhythmsync.player as player
 import rhythmsync.metadata as metadata
 import rhythmsync.converter as converter
 import rhythmsync.terminal_disp as terminal_disp
+import playlists.mpl.core as mpl
 
 
 # resets the cli
@@ -18,21 +19,21 @@ def reset_cli():
 
 
 # supported extensions
-def is_audio_file(path: Path):
-    return path.is_file() and path.suffix.lower() in (".mp3", ".flac", ".wav", ".ogg")
+def is_audio_file(file_path: Path):
+    return file_path.is_file() and file_path.suffix.lower() in (".mp3", ".flac", ".wav", ".ogg")
 
 
 # returns audio files in dir
-def get_audio_files(path: Path, recursive: bool = False):
+def get_audio_files(file_path: Path, recursive: bool = False):
     if recursive:
-        files = path.rglob("*")
+        files = file_path.rglob("*")
     else:
-        files = path.iterdir()
+        files = file_path.iterdir()
 
     return sorted([f for f in files if is_audio_file(f)])
 
 
-# single loop mode logic
+# single file modes logic
 def player_file(file_path, mode):
     repeat = True
 
@@ -125,9 +126,8 @@ def parse_command(raw_command):
             file_path = Path(command[1]).expanduser().resolve()
 
             # single mode
-            if file_path.exists():
+            if is_audio_file(file_path):
                 player_file(file_path, "single")
-                
             else:
                 print("Please enter a valid file path.")
 
@@ -141,11 +141,11 @@ def parse_command(raw_command):
                 return
 
             # single repeat mode
-            if par == "-r":
+            elif par == "-r" and is_audio_file(file_path):
                 player_file(file_path, "repeat")
 
             # directory modes
-            elif par in ("-d", "-dr", "-ds"):
+            elif par in ("-d", "-dr", "-ds") and file_path.is_dir():
 
                 directory = file_path
                 audio_files = get_audio_files(directory, recursive=False)
@@ -163,7 +163,7 @@ def parse_command(raw_command):
                     player_directory(audio_files, "shuffle")
 
             # recursive directory modes
-            elif par in ("-D", "-Dr", "-Ds"):
+            elif par in ("-D", "-Dr", "-Ds") and file_path.is_dir():
 
                 directory = file_path
                 audio_files = get_audio_files(directory, recursive=True)
@@ -179,6 +179,28 @@ def parse_command(raw_command):
                 elif par == "-Ds":
                     shuffle(audio_files)
                     player_directory(audio_files, "shuffle")
+
+            # playlist modes
+            elif par in ("-p", "-pr", "-ps") and file_path.suffix == ".mpl":
+
+                if par == "-p":
+                    audio_files = mpl.load_playlist(file_path)
+
+                    player_directory(audio_files, "single")
+
+                elif par == "-pr":
+                    audio_files = mpl.load_playlist(file_path)
+
+                    player_directory(audio_files, "repeat")
+
+                elif par == "-ps":
+                    audio_files = mpl.load_playlist(file_path)
+
+                    shuffle(audio_files)
+                    player_directory(audio_files, "shuffle")
+
+            else:
+                print("Please enter a valid parameters.")
 
         else:
             print("Please enter a valid file path and parameters.")
