@@ -44,7 +44,7 @@ def player_file(file_path, mode):
     reset_cli()
 
 
-# directory modes logic
+# directory and playlist modes logic
 def player_directory(files, mode):
     if not files:
         print("No audio files found.")
@@ -183,24 +183,20 @@ def parse_command(raw_command):
             # playlist modes
             elif par in ("-p", "-pr", "-ps") and file_path.suffix == ".mpl":
 
-                if par == "-p":
-                    audio_files = mpl.load_playlist(file_path)
+                audio_files = mpl.load_playlist(str(file_path))
 
+                if par == "-p":
                     player_directory(audio_files, "single")
 
                 elif par == "-pr":
-                    audio_files = mpl.load_playlist(file_path)
-
                     player_directory(audio_files, "repeat")
 
                 elif par == "-ps":
-                    audio_files = mpl.load_playlist(file_path)
-
                     shuffle(audio_files)
                     player_directory(audio_files, "shuffle")
 
             else:
-                print("Please enter a valid parameters.")
+                print("Please enter valid parameters.")
 
         else:
             print("Please enter a valid file path and parameters.")
