@@ -116,6 +116,7 @@ def input_cli(prompt="> "):
     global history_index
 
     buffer = ""
+    cursor_pos = 0
     history_index = len(history)
     redraw_input(prompt, buffer)
 
@@ -124,7 +125,6 @@ def input_cli(prompt="> "):
 
         # CTRL+C
         if ch == "\x03":
-            print()
             raise KeyboardInterrupt
 
         # CTRL+Z
@@ -132,7 +132,6 @@ def input_cli(prompt="> "):
             print("\n[Suspended]")
             fd = sys.stdin.fileno()
             termios.tcsetattr(fd, termios.TCSADRAIN, termios.tcgetattr(fd))
-
             os.kill(os.getpid(), signal.SIGTSTP)
 
         # ENTER
@@ -140,17 +139,24 @@ def input_cli(prompt="> "):
             print()
             if buffer.strip():
                 history.append(buffer)
+
             return buffer
 
         # BACKSPACE
         elif ch == "\x7f":
-            if buffer:
-                buffer = buffer[:-1]
+            if cursor_pos > 0:
+                buffer = buffer[:cursor_pos - 1] + buffer[cursor_pos:]
+                cursor_pos -= 1
                 redraw_input(prompt, buffer)
+  
+                if cursor_pos < len(buffer):
+                    sys.stdout.write(f"\x1b[{len(buffer) - cursor_pos}D")
+                    sys.stdout.flush()
 
         # TAB
         elif ch == "\t":
             buffer = complete_path(buffer)
+            cursor_pos = len(buffer)
             redraw_input(prompt, buffer)
 
         # ESC Sequences
@@ -161,23 +167,57 @@ def input_cli(prompt="> "):
             except Exception:
                 continue
 
-            # UP
-            if next2 == "A":
+            # DEL
+            if next2 == "3":
+                _ = getch()
+                if cursor_pos < len(buffer):
+                    buffer = buffer[:cursor_pos] + buffer[cursor_pos+1:]
+                    redraw_input(prompt, buffer)
+                    if cursor_pos < len(buffer):
+                        sys.stdout.write(f"\x1b[{len(buffer) - cursor_pos}D")
+                        sys.stdout.flush()
+            
+            # LEFT arrow
+            elif next2 == "D":
+                if cursor_pos > 0:
+                    cursor_pos -= 1
+                    sys.stdout.write("\x1b[D")
+                    sys.stdout.flush()
+
+            # RIGHT arrow
+            elif next2 == "C":
+                if cursor_pos < len(buffer):
+                    cursor_pos += 1
+                    sys.stdout.write("\x1b[C")
+                    sys.stdout.flush()
+
+            # UP arrow
+            elif next2 == "A":
                 if history:
                     history_index = max(0, history_index - 1)
                     buffer = history[history_index]
+                    cursor_pos = len(buffer)
                     redraw_input(prompt, buffer)
 
-            # DOWN
+            # DOWN arrow
             elif next2 == "B":
                 if history:
-                    history_index = min(len(history) - 1, history_index + 1)
-                    buffer = history[history_index]
+                    history_index = min(len(history), history_index + 1)
+                    if history_index < len(history):
+                        buffer = history[history_index]
+                    else:
+                        buffer = ""
+                    cursor_pos = len(buffer)
                     redraw_input(prompt, buffer)
 
         else:
-            buffer += ch
+            buffer = buffer[:cursor_pos] + ch + buffer[cursor_pos:]
+            cursor_pos += 1
             redraw_input(prompt, buffer)
+
+            if cursor_pos < len(buffer):
+                sys.stdout.write(f"\x1b[{len(buffer) - cursor_pos}D")
+                sys.stdout.flush()
 
 
 # main program
