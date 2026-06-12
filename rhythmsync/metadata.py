@@ -115,7 +115,7 @@ def get_ti_ar(file_path):
         return f"Unknown Title", "Unknown Artist"
 
 
-# get lrc data from the audio file for the player
+# get and format lyrics from the audio file for the player
 def get_lrc(file_path):
     try:
         audio = File(file_path)
@@ -160,7 +160,7 @@ def get_lrc(file_path):
         return None
 
 
-# get meatadata for info panel (player)
+# get meatadata for the info panel (player)
 def get_info(file_path):
     try:
         audio = File(file_path)

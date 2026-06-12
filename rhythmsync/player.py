@@ -161,6 +161,9 @@ def run_player(file_path, mode):
         tty.setcbreak(fd)
 
         layout = make_layout()
+        
+        pygame.init()
+        clock = pygame.time.Clock()
 
         pygame.mixer.init()
         pygame.mixer.music.load(file_path)
@@ -289,6 +292,8 @@ def run_player(file_path, mode):
                         description=f"[red]< [/red]⏸ [#00d0ff]{format_time(current_time)}",
                         suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>"
                     )
+
+                    clock.tick(100)
 
             if mode[0] == "single":
                 return (False, 0)
