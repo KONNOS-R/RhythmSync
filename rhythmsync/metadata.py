@@ -125,6 +125,7 @@ def get_lrc(file_path):
 
         lrc_tag_names = ['SYLT', 'SYLT::eng', 'LYRICS', 'LYRICS:eng', 'LYRICS-ENG', 'LYRICS_EN', 'LYRICS_SYNCED', 'SYNCEDLYRICS']
 
+        # fetch lyrics
         for tag in lrc_tag_names:
             if tag in audio.tags:
 
@@ -134,34 +135,29 @@ def get_lrc(file_path):
                     try:
                         return "\n".join([t[2] for t in value[0].text])
                     except Exception:
-                        return value[0]
-                return value[0] if isinstance(value, list) else value
+                        raw_lyrics = value[0]
+                    
+                raw_lyrics = value[0] if isinstance(value, list) else value
+
+                # format lyrics
+                timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
+
+                lrc_lines = raw_lyrics.split("\n")
+            
+                lyrics = [[line[1:9],line[10:].strip()] for line in lrc_lines if match(timestamp, line)]
+            
+                lyrics.insert(0,['00:00.00', ""])
+            
+                for x in lyrics:
+                    if x[1] == "":
+                        x[1] = "♫"
+
+                return lyrics
+
         return None
 
     except Exception as e:
         return None
-
-
-# format lyrics for the player
-def format_lrc(lrc_data):
-    timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
-
-    lrc_lines = lrc_data.split("\n")
-
-    lyrics = [[line[1:9],line[10:].strip()] for line in lrc_lines if match(timestamp, line)]
-
-    #lyrics = [
-    #[i, line[1:9], line[10:].strip()]
-    #for i, line in enumerate(lrc_lines, start=1)
-    #if match(timestamp, line)
-    #]
-
-    lyrics.insert(0,['00:00.00', ""])
-
-    for x in lyrics:
-        if x[1] == "":
-            x[1] = "♫"
-    return lyrics
 
 
 # get meatadata for info panel (player)

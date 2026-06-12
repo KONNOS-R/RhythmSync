@@ -95,17 +95,6 @@ def make_lyrics(lyrics, index, window=2):
     
     return Align.center(Group(*styled_lines), vertical="middle")
 
-    '''
-    return Align.center(Group(
-            Align.center(f"[#1f1f1f][not bold]{lyric_lines[0]}"),
-            Align.center(f"[#2f2f2f][not bold]{lyric_lines[1]}"),
-            Align.center(f"[#00d0ff][bold]{lyric_lines[2]}"),
-            Align.center(f"[white][not bold]{lyric_lines[3]}"),
-            Align.center(f"[#afafaf][not bold]{lyric_lines[4]}")
-            ),
-        vertical="middle"
-    )
-    '''
 
 # file info section
 def make_file_info(info):
@@ -181,22 +170,18 @@ def run_player(file_path, mode):
 
         title, artist = metadata.get_ti_ar(file_path)
 
-        lyrics_exist = False
+        lyrics = metadata.get_lrc(file_path)
 
-        raw_lrc = metadata.get_lrc(file_path)
-
-        if raw_lrc is not None:
-            lyrics = metadata.format_lrc(raw_lrc)
-            lyrics_exist = True
+        lyrics_exist = True if lyrics != None else False
 
         lyric_index = 0
-
-        paused = False
 
         if lyrics_exist:
             main_status = "lyrics"
         else:
             main_status = "info"
+
+        paused = False
 
         # prepare layout
         terminal_disp.clear_screen()
