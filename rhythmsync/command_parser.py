@@ -220,6 +220,25 @@ def parse_command(raw_command):
         else:
             print("Please enter a valid file path and parameters.")
 
+    # playlist command
+    elif cmd == "playlist" and command_parts == 3:
+
+        par = command[1]
+        path = command[2]
+
+
+        # create playlist
+        if par == "-c":
+            pass
+
+        # edit playlist
+        elif par == "-e":
+            pass
+
+        # delete playlist
+        elif par == "-d":
+            pass
+
     # convert command
     elif cmd == "convert" and command_parts == 3:
 
