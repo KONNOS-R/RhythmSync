@@ -163,17 +163,6 @@ def get_lrc(file_path):
 # get meatadata for the info panel (player)
 def get_info(file_path):
     try:
-        audio = File(file_path)
-        if audio is None or audio.tags is None:
-            return None
-        tag_map = get_tag_map()
-        reverse_map = {}
-        for canonical, variants in tag_map.items():
-            for variant in variants:
-                reverse_map[variant.lower()] = canonical
-
-        tags = ["title", "artist", "album", "genre", "date"]
-
         info = {
             "title": "Unknown Title",
             "artist": "Unknown Artist",
@@ -182,6 +171,20 @@ def get_info(file_path):
             "date": "Unknown Date",
             "sample_rate": "Unknown Sample Rate"
         }
+                
+        audio = File(file_path)
+        
+        if audio is None or audio.tags is None:
+            return info
+        
+        tag_map = get_tag_map()
+        reverse_map = {}
+
+        for canonical, variants in tag_map.items():
+            for variant in variants:
+                reverse_map[variant.lower()] = canonical
+
+        tags = ["title", "artist", "album", "genre", "date"]
 
         for key, value in audio.tags.items():
             canonical = reverse_map.get(key.lower(), key.lower())
@@ -204,4 +207,11 @@ def get_info(file_path):
         return info
 
     except Exception as e:
-        return None
+        return {
+            "title": "Unknown Title",
+            "artist": "Unknown Artist",
+            "album": "Unknown Album",
+            "genre": "Unknown Genre",
+            "date": "Unknown Date",
+            "sample_rate": "Unknown Sample Rate"
+        }
