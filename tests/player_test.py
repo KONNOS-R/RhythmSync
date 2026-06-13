@@ -277,6 +277,7 @@ def run_player(file_path, mode):
 
                             layout["main"].update(make_lyrics(lyrics, lyric_index))
 
+                            
                 if not paused:
                     if lyrics_exist and lyric_index < len(lyrics) - 1 and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
                         lyric_index += 1
@@ -304,7 +305,7 @@ def run_player(file_path, mode):
     except KeyboardInterrupt:
         print("Exiting...")
         pygame.mixer.music.stop()
-        return (False, 0)
+        #return (False, 0)
     
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
