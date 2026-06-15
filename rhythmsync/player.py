@@ -341,6 +341,8 @@ def run_player(audio_files):
 
                         elif key in "Ss":
                             if shuffled:
+                                order = []
+                                i = 0
                                 shuffled = False
                                 s_icon = ""
 
@@ -370,8 +372,6 @@ def run_player(audio_files):
 
 
 
-                        clock.tick(100)
-
                     if not(pygame.mixer.music.get_busy() or paused):
 
                         if repeat == "single":
@@ -400,6 +400,8 @@ def run_player(audio_files):
                                 raise KeyboardInterrupt
                             
                         running = False
+
+                    clock.tick(100)
 
         except KeyboardInterrupt:
             print("Exiting...")
