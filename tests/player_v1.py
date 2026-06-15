@@ -158,16 +158,6 @@ def create_queue(audio_files):
 '''
 
 
-def random_index(n, x = None):   
-    if x != None: 
-        numbers = [i for i in range(n) if i != x]
-        shuffle(numbers)
-        numbers.insert(x, x)
-    else:
-        numbers = [i for i in range(n)]
-        shuffle(numbers)
-
-    return numbers
 
 
 # music player
@@ -278,15 +268,7 @@ def run_player(audio_files):
 
                                 # LEFT arrow
                                 if seq == "[D":
-                                    if shuffled:
-                                        if i > 0:
-                                            i -= 1
-                                        else:
-                                            i = len(audio_files) - 1
-
-                                        index = order[i]
-
-                                    elif index > 0:
+                                    if index > 0:
                                         index -= 1
                                     else:
                                         index = len(audio_files) - 1
@@ -294,23 +276,8 @@ def run_player(audio_files):
 
                                 #RIGHT arrow
                                 elif seq == "[C":
-                                    if shuffled:
-                                        if i < len(audio_files) - 1:
-                                            i += 1
-
-                                        else:
-                                            if repeat == "all":
-                                                order = random_index(len(audio_files))
-                                                i = 0
-
-                                            else:
-                                                i = 0
-
-                                        index = order[i]
-
-                                    elif index < len(audio_files) - 1:
+                                    if index < len(audio_files) - 1:
                                         index += 1
-
                                     else:
                                         index = 0
                                     running = False
@@ -341,12 +308,15 @@ def run_player(audio_files):
 
                         elif key in "Ss":
                             if shuffled:
+                                audio_files = sorted(audio_files)
+                                for i in range(len(audio_files)):
+                                    if file_path == audio_files[i]:
+                                        index = i
                                 shuffled = False
                                 s_icon = ""
 
                             else:
-                                order = random_index(len(audio_files), index)
-                                i = index
+                                shuffle(audio_files)
                                 shuffled = True
                                 s_icon = "🔀︎"
 
@@ -377,19 +347,6 @@ def run_player(audio_files):
                         if repeat == "single":
                             pass
 
-                        elif shuffled:
-                            if i < len(audio_files) - 1:
-                                i += 1
-
-                            else:
-                                if repeat == "all":
-                                    order = random_index(len(audio_files))
-                                    i = 0
-                                else:
-                                    raise KeyboardInterrupt
-
-                            index = order[i]
-                            
                         elif index < len(audio_files) - 1:
                             index += 1
 
