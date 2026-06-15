@@ -150,14 +150,8 @@ def unformat_time(time_str):
     
     return milliseconds
 
-'''
-# crete queue
-def create_queue(audio_files):
-    for x in audio_files:
-        run_player(x)
-'''
 
-
+# create random order for shuffle
 def random_index(n, x = None):   
     if x != None: 
         numbers = [i for i in range(n) if i != x]
@@ -175,23 +169,26 @@ def run_player(audio_files):
     player_loop = True
     
     repeat = False
+
     shuffled = False
 
     index = 0
-    while player_loop:
-        file_path = audio_files[index]
 
+    # initialize pygame
+    pygame.init()
+    clock = pygame.time.Clock()
+    pygame.mixer.init()
+
+    while player_loop:
         try:
             running = True
+            
+            file_path = audio_files[index]
 
             fd = sys.stdin.fileno()
             old = termios.tcgetattr(fd)
             tty.setcbreak(fd)
 
-            pygame.init()
-            clock = pygame.time.Clock()
-
-            pygame.mixer.init()
             pygame.mixer.music.load(file_path)
             pygame.mixer.music.play()
 
@@ -274,6 +271,9 @@ def run_player(audio_files):
 
                         #ESC seq
                         elif key == "\x1b":
+                            r, _, _ = select.select([sys.stdin], [], [], 0.05)
+                            if r:
+
                                 seq = sys.stdin.read(2)
 
                                 # LEFT arrow
@@ -284,7 +284,7 @@ def run_player(audio_files):
                                         else:
                                             i = len(audio_files) - 1
 
-                                        index = order[i]
+                                        index = shuffled_order[i]
 
                                     elif index > 0:
                                         index -= 1
@@ -300,13 +300,13 @@ def run_player(audio_files):
 
                                         else:
                                             if repeat == "all":
-                                                order = random_index(len(audio_files))
+                                                shuffled_order = random_index(len(audio_files))
                                                 i = 0
 
                                             else:
                                                 i = 0
 
-                                        index = order[i]
+                                        index = shuffled_order[i]
 
                                     elif index < len(audio_files) - 1:
                                         index += 1
@@ -341,13 +341,13 @@ def run_player(audio_files):
 
                         elif key in "Ss":
                             if shuffled:
-                                order = []
-                                i = 0
+                                shuffled_order = None
+                                i = None
                                 shuffled = False
                                 s_icon = ""
 
                             else:
-                                order = random_index(len(audio_files), index)
+                                shuffled_order = random_index(len(audio_files), index)
                                 i = index
                                 shuffled = True
                                 s_icon = "🔀︎"
@@ -357,8 +357,6 @@ def run_player(audio_files):
                         if lyrics_exist and lyric_index < len(lyrics) - 1 and main_status == "lyrics" and unformat_time(lyrics[lyric_index + 1][0]) <= current_time:
                             lyric_index += 1
 
-                            height = os.get_terminal_size()[1]
-
                             layout["main"].update(make_lyrics(lyrics, lyric_index))
 
                         progress.update(
@@ -367,8 +365,6 @@ def run_player(audio_files):
                             description=f"[red]<[/red] ⏸ [#00d0ff]{format_time(current_time)}",
                             suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>[/red]"
                         )
-
-                        layout["header"].update(make_header(title, artist, (index + 1, len(audio_files), s_icon, r_icon)))
 
 
 
@@ -383,12 +379,12 @@ def run_player(audio_files):
 
                             else:
                                 if repeat == "all":
-                                    order = random_index(len(audio_files))
+                                    shuffled_order = random_index(len(audio_files))
                                     i = 0
                                 else:
                                     raise KeyboardInterrupt
 
-                            index = order[i]
+                            index = shuffled_order[i]
                             
                         elif index < len(audio_files) - 1:
                             index += 1
@@ -401,6 +397,9 @@ def run_player(audio_files):
                             
                         running = False
 
+
+                    layout["header"].update(make_header(title, artist, (index + 1, len(audio_files), s_icon, r_icon)))
+                    
                     clock.tick(100)
 
         except KeyboardInterrupt:
@@ -411,3 +410,7 @@ def run_player(audio_files):
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old)
             terminal_disp.clear_screen()
+
+    # quit pygame
+    pygame.mixer.quit()
+    pygame.quit()
