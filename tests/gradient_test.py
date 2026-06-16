@@ -25,7 +25,7 @@ def hex_gradient(color1, color2, steps):
 
 
 
-"""
+
 from rich.console import Console
 console = Console()
 
@@ -42,7 +42,7 @@ if False:
                __/ |                            __/ |           
               |___/                            |___/            
 '''
-else:
+elif False:
     logo = r'''
  /███████  /██                   /██     /██                      /██████                               
 | ██__ '██| ██                  | ██    | ██                     /██__ '██                              
@@ -55,6 +55,10 @@ else:
                      /██  | ██                                             /██  | ██                    
                     | '██████/                                            | '██████/                    
                      \______/                                              \______/                     
+'''
+else:
+    logo = r'''
+RhythmSync
 '''
 
 
@@ -72,4 +76,4 @@ for i in range(1, len(lines)):
     colored_logo += "\n"
 
 console.print(colored_logo)
-"""
+print(colored_logo)

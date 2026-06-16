@@ -42,7 +42,6 @@ def parse_command(raw_command):
     cmd = command[0]
     command_parts = len(command)
 
-
     # help command
     if cmd == "help" and command_parts == 1:
         terminal_disp.help_msg()

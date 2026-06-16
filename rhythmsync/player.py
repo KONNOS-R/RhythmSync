@@ -33,7 +33,6 @@ def make_layout():
 # header section
 def make_header(title, artist, header_info):
     content = Group(Align.center(f"[bold]{title}"), Align.center(f"[#5900ab]{artist}"))
-    #icons = {"repeat": "⭮ ", "shuffle": "🔀︎"}
     
     now, total, s_icon, r_icon = header_info
 
@@ -121,7 +120,7 @@ def make_player():
 
 # footer section
 def make_footer(file_path):
-    return Align.center(f"[bold][#5900ab]Rhythm[#00d0ff]Sync[white][not bold] | {file_path}")
+    return Align.center(f"[bold][#5900ab]R[#4f17b4]h[#452ebd]y[#3b45c7]t[#315cd0]h[#2773d9]m[#1d8ae3]S[#13a1ec]y[#09b8f5]n[#00d0ff]c[white][not bold] | {file_path}")
 
 
 # get the total length of the audio file
@@ -152,7 +151,7 @@ def unformat_time(time_str):
 
 
 # create random order for shuffle
-def random_index(n, x = None):   
+def shuffled_indices(n, x = None):   
     if x != None: 
         numbers = [i for i in range(n) if i != x]
         shuffle(numbers)
@@ -211,6 +210,7 @@ def run_player(audio_files):
 
             layout = make_layout()
 
+                # header
             if not repeat:
                 r_icon = ""
             elif repeat == "all":
@@ -225,14 +225,17 @@ def run_player(audio_files):
 
             layout["header"].update(make_header(title, artist, (index + 1, len(audio_files), s_icon, r_icon)))
 
+                # main
             if main_status == "lyrics":
                 layout["main"].update(make_lyrics(lyrics, lyric_index))
             elif main_status == "info":
                 layout["main"].update(make_file_info(metadata.get_info(file_path)))
 
+                # player
             progress = make_player()
             layout["player"].update(progress)
 
+                # footer
             layout["footer"].update(make_footer(file_path))
 
             # start player
@@ -300,7 +303,7 @@ def run_player(audio_files):
 
                                         else:
                                             if repeat == "all":
-                                                shuffled_order = random_index(len(audio_files))
+                                                shuffled_order = shuffled_indices(len(audio_files))
                                                 i = 0
 
                                             else:
@@ -347,7 +350,7 @@ def run_player(audio_files):
                                 s_icon = ""
 
                             else:
-                                shuffled_order = random_index(len(audio_files), index)
+                                shuffled_order = shuffled_indices(len(audio_files), index)
                                 i = index
                                 shuffled = True
                                 s_icon = "🔀︎"
@@ -378,7 +381,7 @@ def run_player(audio_files):
 
                             else:
                                 if repeat == "all":
-                                    shuffled_order = random_index(len(audio_files))
+                                    shuffled_order = shuffled_indices(len(audio_files))
                                     i = 0
                                 else:
                                     raise KeyboardInterrupt
