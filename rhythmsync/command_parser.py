@@ -88,8 +88,12 @@ def parse_command(raw_command):
             # file mode
             file_path = Path(command[1]).expanduser().resolve()
 
-            if not file_path.exists() and not is_audio_file(file_path):
+            if not(file_path.exists()):
                 print("Please enter a valid file path.")
+                return
+
+            if not(is_audio_file(file_path)):
+                print("Unsupported or invalid audio file.")
                 return
 
             player.run_player([file_path])
@@ -110,7 +114,7 @@ def parse_command(raw_command):
                 audio_files = get_audio_files(file_path, recursive=False)
 
                 if not audio_files:
-                    print("No valid audio files.")
+                    print("Unsupported or invalid audio files.")
                     return
 
                 player.run_player(audio_files)
@@ -122,7 +126,7 @@ def parse_command(raw_command):
                 audio_files = get_audio_files(file_path, recursive=True)
 
                 if not audio_files:
-                    print("No valid audio files.")
+                    print("Unsupported or invalid audio files.")
                     return
 
                 player.run_player(audio_files)
@@ -134,7 +138,7 @@ def parse_command(raw_command):
                 audio_files = mpl.load_playlist(str(file_path))
 
                 if not audio_files:
-                    print("No valid audio files.")
+                    print("Unsupported or invalid audio files.")
                     return
 
                 player.run_player(audio_files)
