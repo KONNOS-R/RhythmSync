@@ -365,8 +365,7 @@ def run_player(audio_files):
                             description=f"[red]<[/red] ⏸ [#00d0ff]{format_time(current_time)}",
                             suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>[/red]"
                         )
-
-
+                        
 
                     if not(pygame.mixer.music.get_busy() or paused):
 

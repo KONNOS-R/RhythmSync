@@ -42,9 +42,11 @@ def parse_command(raw_command):
     cmd = command[0]
     command_parts = len(command)
 
+
     # help command
     if cmd == "help" and command_parts == 1:
         terminal_disp.help_msg()
+
 
     # list command
     elif cmd == "ls":
@@ -63,6 +65,7 @@ def parse_command(raw_command):
         else:
             print("Please enter valid parameters.")
 
+
     # change directory command
     elif cmd == "cd" and command_parts == 2:
         directory = Path(command[1]).expanduser().resolve()
@@ -72,21 +75,23 @@ def parse_command(raw_command):
         else:
             print("Please enter a valid path.")
 
+
     # clear command
     elif cmd == "clear" and command_parts == 1:
         reset_cli()
+
 
     # play command
     elif cmd == "play":
 
         if command_parts == 2:
+            # file mode
             file_path = Path(command[1]).expanduser().resolve()
 
             if not file_path.exists() and not is_audio_file(file_path):
                 print("Please enter a valid file path.")
                 return
 
-            # single mode
             player.run_player([file_path])
             reset_cli()
 
@@ -100,35 +105,49 @@ def parse_command(raw_command):
                 print("Please enter a valid file path.")
                 return
 
-            # directory modes
+            # directory mode (non-recursive)
             elif par == "-d" and file_path.is_dir():
-
                 audio_files = get_audio_files(file_path, recursive=False)
+
+                if not audio_files:
+                    print("No valid audio files.")
+                    return
+
                 player.run_player(audio_files)
                 reset_cli()
 
 
-            # recursive directory modes
+            # directory mode (recursive)
             elif par == "-D" and file_path.is_dir():
-
                 audio_files = get_audio_files(file_path, recursive=True)
+
+                if not audio_files:
+                    print("No valid audio files.")
+                    return
+
                 player.run_player(audio_files)
                 reset_cli()
 
 
-            # playlist modes
+            # playlist mode
             elif par == "-p" and file_path.suffix == ".mpl":
-
                 audio_files = mpl.load_playlist(str(file_path))
+
+                if not audio_files:
+                    print("No valid audio files.")
+                    return
+
                 player.run_player(audio_files)
                 reset_cli()
 
 
+            # invalid parameters
             else:
                 print("Please enter valid parameters.")
 
         else:
             print("Please enter a valid file path and parameters.")
+
 
     # info command
     elif cmd == "info":
@@ -149,12 +168,12 @@ def parse_command(raw_command):
         else:
             print("Please enter a valid file path and parameters.")
 
+
     # playlist command
     elif cmd == "playlist" and command_parts == 3:
 
         par = command[1]
         path = command[2]
-
 
         # create playlist
         if par == "-c":
@@ -168,6 +187,7 @@ def parse_command(raw_command):
         elif par == "-d":
             pass
 
+
     # convert command
     elif cmd == "convert" and command_parts == 3:
 
@@ -179,6 +199,7 @@ def parse_command(raw_command):
             converter.convert(input_path, output_path)
         else:
             print("Please enter valid file paths.")
+
 
     # invalid command           
     else:
