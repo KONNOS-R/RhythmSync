@@ -118,6 +118,6 @@ def help_msg():
 # format and print error messages
 def error_msg(content, title = None):
     if title != None:
-        console.print(f"[bold red]{title} Error:[/bold red] {content}")
+        console.print(f"[bold red]{title} Error:[/bold red] {content}", highlight=False)
     else:
-        console.print(f"[bold red]Error:[/bold red] {content}")
+        console.print(f"[bold red]Error:[/bold red] {content}", highlight=False)

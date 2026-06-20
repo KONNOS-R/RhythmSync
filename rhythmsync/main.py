@@ -20,8 +20,9 @@ def is_audio_file(file_path: Path) -> bool:
 def get_audio_files(file_path: Path, recursive: bool = False) -> List[Path]:
     try:
         files = file_path.rglob("*") if recursive else file_path.iterdir()
+
     except PermissionError:
-        console.print("[red]Error: Permission denied when reading directory.[/red]")
+        terminal_disp.error_msg("Permission denied when reading directory.")
         return []
     return sorted([f for f in files if is_audio_file(f)])
 
@@ -72,7 +73,7 @@ def logo(
     options = [small, large]
 
     if sum(options) > 1:
-        console.print("[red]Error: Multiple options (-s, -l) selected. Choose only one![/red]")
+        terminal_disp.error_msg("Multiple options (-s, -l) selected. Choose only one!")
         raise typer.Exit(1)
 
     try:
@@ -84,7 +85,7 @@ def logo(
             terminal_disp.logo()
 
     except Exception as e:
-        console.print(f"[red]Error: Failed to display logo: {e}[/red]")
+        terminal_disp.error_msg(f"Failed to display logo: {e}")
         raise typer.Exit(1)
 
 
@@ -99,13 +100,13 @@ def play(
     """Play an audio file, a directory of files, or a .mpl playlist."""
 
     if not path.exists():
-        console.print(f"[red]Error: Path does not exist: {path}[/red]")
+        terminal_disp.error_msg(f"Path does not exist: {path}")
         raise typer.Exit(1)
     
     modes = [dir_mode, dir_rec_mode, playlist_mode]
 
     if sum(modes) > 1:
-        console.print("[red]Error: Multiple modes (-d, -D, -p) selected. Choose only one![/red]")
+        terminal_disp.error_msg("Multiple modes (-d, -D, -p) selected. Choose only one!")
         raise typer.Exit(1)
 
     audio_files = []
@@ -113,29 +114,30 @@ def play(
     try:
         if playlist_mode:
             if path.suffix.lower() != ".mpl":
-                console.print("[red]Error: Playlist must have a .mpl extension.[/red]")
+                terminal_disp.error_msg("Playlist must have a .mpl extension.")
                 raise typer.Exit(1)
             try:
                 audio_files = mpl.load_playlist(str(path))
             except Exception as e:
-                console.print(f"[red]Error: Failed to load playlist: {e}[/red]")
+                terminal_disp.error_msg(f"Failed to load playlist: {e}")
                 raise typer.Exit(1)
 
         elif dir_mode or dir_rec_mode:
             if not path.is_dir():
-                console.print("[red]Error: Path must be a directory when using directory modes (-d, -D).[/red]")
+                terminal_disp.error_msg("Path must be a directory when using directory modes (-d, -D).")
                 raise typer.Exit(1)
             audio_files = get_audio_files(path, recursive=dir_rec_mode)
 
         else:
             # Single file mode
             if not is_audio_file(path):
-                console.print("[red]Error: Unsupported or invalid audio file.[/red]")
+                terminal_disp.error_msg(f"Unsupported or invalid file.")
                 raise typer.Exit(1)
+            
             audio_files = [path]
 
         if not audio_files:
-            console.print("[red]Error: No supported audio files found.[/red]")
+            terminal_disp.error_msg("No supported audio files found.")
             raise typer.Exit(1)
 
         try:
@@ -143,14 +145,14 @@ def play(
             console.print("Exiting player...", highlight=False)
 
         except Exception as e:
-            console.print(f"[red]Playback error: {e}[/red]")
+            terminal_disp.error_msg(e, "Playback")
             raise typer.Exit(1)
 
     except typer.Exit:
         raise
 
     except Exception as e:
-        console.print(f"[red]Error: {e}[/red]")
+        terminal_disp.error_msg(e)
         raise typer.Exit(1)
 
 
@@ -163,14 +165,14 @@ def info(
     """Display metadata for an audio file."""
 
     if not file.exists():
-        console.print(f"[red]Error: File does not exist: {file}[/red]")
+        terminal_disp.error_msg(f"File does not exist.")
         raise typer.Exit(1)
 
     try:
         file_info = metadata.get_metadata(file, tags)
 
     except Exception as e:
-        console.print(f"[red]Error: Failed to read metadata: {e}[/red]")
+        terminal_disp.error_msg(f"Failed to read metadata: {e}")
         raise typer.Exit(1)
 
     if file_info:
@@ -188,12 +190,13 @@ def convert(
     """Convert an audio file."""
 
     if not input.exists():
-        console.print(f"[red]Error: Input file does not exist: {input}[/red]")
+        terminal_disp.error_msg(f"Input file does not exist: {input}")
         raise typer.Exit(1)
 
     output_dir = output.parent
+
     if not output_dir.exists():
-        console.print("[red]Error: Output directory does not exist.[/red]")
+        terminal_disp.error_msg("Output directory does not exist.")
         raise typer.Exit(1)
 
     try:
@@ -204,7 +207,7 @@ def convert(
         raise
     
     except Exception as e:
-        console.print(f"[red]Error: Conversion failed: {e}[/red]")
+        terminal_disp.error_msg(f"Conversion failed: {e}")
         raise typer.Exit(1)
 
 
@@ -221,7 +224,7 @@ def playlist_create(name: str):
     try:
         pass
     except Exception as e:
-        console.print(f"[red]Error: Failed to create playlist: {e}[/red]")
+        terminal_disp.error_msg(f"Failed to create playlist: {e}")
         raise typer.Exit(1)
 
 
@@ -233,7 +236,7 @@ def playlist_edit(name: str):
     try:
         pass
     except Exception as e:
-        console.print(f"[red]Error: Failed to edit playlist: {e}[/red]")
+        terminal_disp.error_msg(f"Failed to edit playlist: {e}")
         raise typer.Exit(1)
 
 
@@ -245,7 +248,7 @@ def playlist_delete(name: str):
     try:
         pass
     except Exception as e:
-        console.print(f"[red]Error: Failed to delete playlist: {e}[/red]")
+        terminal_disp.error_msg(f"Failed to delete playlist: {e}")
         raise typer.Exit(1)
 
 
