@@ -36,9 +36,8 @@ def clear_screen():
 
 
 # print logo
-def logo():
-    if os.get_terminal_size()[0] < 128:
-        logo = r'''
+def logo(option = None):
+    small_logo = r'''
  _____  _           _   _                _____                  
 |  __ \| |         | | | |              / ____|                 
 | |__) | |__  _   _| |_| |__  _ __ ___ | (___  _   _ _ __   ___ 
@@ -49,8 +48,7 @@ def logo():
               |___/                            |___/            
 '''
         
-    else:
-        logo = r'''
+    large_logo = r'''
  /███████  /██                   /██     /██                      /██████                               
 | ██__ '██| ██                  | ██    | ██                     /██__ '██                              
 | ██  \ ██| ███████  /██   /██ /██████  | ███████  /██████/████ | ██  \__/ /██   /██ /███████   /███████
@@ -64,7 +62,17 @@ def logo():
                      \______/                                              \______/                     
 '''
 
-    lines = logo.splitlines()
+    if option == "small":
+        displayed_logo = small_logo
+    elif option == "large":
+        displayed_logo = large_logo
+    else:
+        if os.get_terminal_size()[0] < 128:
+            displayed_logo = small_logo
+        else:
+            displayed_logo = large_logo
+
+    lines = displayed_logo.splitlines()
     length = len(lines[1])
     gradient = hex_gradient("#5900ab", "#00d0ff", length)
 

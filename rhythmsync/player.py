@@ -119,8 +119,19 @@ def make_player():
 
 
 # footer section
-def make_footer(file_path):
-    return Align.center(f"[bold][#5900ab]R[#4f17b4]h[#452ebd]y[#3b45c7]t[#315cd0]h[#2773d9]m[#1d8ae3]S[#13a1ec]y[#09b8f5]n[#00d0ff]c[white][not bold] | {file_path}")
+def make_footer(file_path: str):
+    prefix = "[bold][#5900ab]R[#4f17b4]h[#452ebd]y[#3b45c7]t[#315cd0]h[#2773d9]m[#1d8ae3]S[#13a1ec]y[#09b8f5]n[#00d0ff]c[white][not bold] | "
+
+    length = len(file_path)
+    width = os.get_terminal_size()[0]
+
+    if length > width - 13:
+        new_length = max(0, width - 13 - 3)
+        displayed_path = "..." + file_path[length - new_length:]
+    else:
+        displayed_path = file_path
+
+    return Align.center(f"{prefix}{displayed_path}")
 
 
 # get the total length of the audio file
@@ -236,7 +247,7 @@ def run_player(audio_files):
             layout["player"].update(progress)
 
                 # footer
-            layout["footer"].update(make_footer(file_path))
+            layout["footer"].update(make_footer(str(file_path)))
 
             # start player
             with Live(layout, refresh_per_second=100):
@@ -266,7 +277,7 @@ def run_player(audio_files):
                                 progress.update(
                                     playback,
                                     completed=current_time,
-                                    description=f"[red]<[/red] ▶ [#00d0ff]{format_time(current_time)}",
+                                    description=f"[red]<[/red] ▸ [#00d0ff]{format_time(current_time)}",
                                     suffix=f"[#00d0ff]{format_time(total_length - current_time)} [red]>[/red]"
                                 )
                                 pygame.mixer.music.pause()
@@ -274,49 +285,46 @@ def run_player(audio_files):
 
                         #ESC seq
                         elif key == "\x1b":
-                            r, _, _ = select.select([sys.stdin], [], [], 0.05)
-                            if r:
+                            seq = sys.stdin.read(2)
 
-                                seq = sys.stdin.read(2)
-
-                                # LEFT arrow
-                                if seq == "[D":
-                                    if shuffled:
-                                        if i > 0:
-                                            i -= 1
-                                        else:
-                                            i = len(audio_files) - 1
-
-                                        index = shuffled_order[i]
-
-                                    elif index > 0:
-                                        index -= 1
+                            # LEFT arrow
+                            if seq == "[D":
+                                if shuffled:
+                                    if i > 0:
+                                        i -= 1
                                     else:
-                                        index = len(audio_files) - 1
-                                    running = False
+                                        i = len(audio_files) - 1
 
-                                #RIGHT arrow
-                                elif seq == "[C":
-                                    if shuffled:
-                                        if i < len(audio_files) - 1:
-                                            i += 1
+                                    index = shuffled_order[i]
 
-                                        else:
-                                            if repeat == "all":
-                                                shuffled_order = shuffled_indices(len(audio_files))
-                                                i = 0
+                                elif index > 0:
+                                    index -= 1
+                                else:
+                                    index = len(audio_files) - 1
+                                running = False
 
-                                            else:
-                                                i = 0
-
-                                        index = shuffled_order[i]
-
-                                    elif index < len(audio_files) - 1:
-                                        index += 1
+                            #RIGHT arrow
+                            elif seq == "[C":
+                                if shuffled:
+                                    if i < len(audio_files) - 1:
+                                        i += 1
 
                                     else:
-                                        index = 0
-                                    running = False
+                                        if repeat == "all":
+                                            shuffled_order = shuffled_indices(len(audio_files))
+                                            i = 0
+    
+                                        else:
+                                            i = 0
+
+                                    index = shuffled_order[i]
+    
+                                elif index < len(audio_files) - 1:
+                                    index += 1
+
+                                else:
+                                    index = 0
+                                running = False
 
                         elif key in "Ii":
                             if main_status == "lyrics":
@@ -401,7 +409,9 @@ def run_player(audio_files):
 
 
                     layout["header"].update(make_header(title, artist, (index + 1, len(audio_files), s_icon, r_icon)))
-                    
+
+                    layout["footer"].update(make_footer(str(file_path)))
+
                     clock.tick(100)
 
         except KeyboardInterrupt:

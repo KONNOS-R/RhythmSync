@@ -1,246 +1,257 @@
-import os
-import sys
-import termios
-import tty
-import signal
-import re
+import typer
+from pathlib import Path
+from typing import List
+from rich.console import Console
+console = Console()
 
+import mpl
+
+import rhythmsync.player as player
+import rhythmsync.metadata as metadata
+import rhythmsync.converter as converter
 import rhythmsync.terminal_disp as terminal_disp
-import rhythmsync.command_parser as command_parser
 
 
-# capture key strokes
-def getch():
-    fd = sys.stdin.fileno()
-    old = termios.tcgetattr(fd)
+# Helper functions
+def is_audio_file(file_path: Path) -> bool:
+    return file_path.is_file() and file_path.suffix.lower() in (".mp3", ".flac", ".wav", ".ogg")
+
+
+def get_audio_files(file_path: Path, recursive: bool = False) -> List[Path]:
+    try:
+        files = file_path.rglob("*") if recursive else file_path.iterdir()
+    except PermissionError:
+        console.print("[red]Error: Permission denied when reading directory.[/red]")
+        return []
+    return sorted([f for f in files if is_audio_file(f)])
+
+
+# main app
+app = typer.Typer()
+
+
+# --version flag
+def version_callback(value: bool):
+    if value:
+        version = "1.2.0"
+        console.print(f"Rhythmsync version: [green]{version}[/green]")
+        raise typer.Exit()
+
+
+# rhythmsync callback
+@app.callback(invoke_without_command=True)
+def main(
+    ctx: typer.Context,
+    version: bool = typer.Option(
+        False,
+        "--version",
+        callback=version_callback,
+        is_eager=True,
+        is_flag=True,
+        help="Show the version and exit.",
+    ),
+):
+    """
+    Rhythmsync: CLI Music Player
+    """
+
+    if ctx.invoked_subcommand is None:
+        terminal_disp.logo()
+
+
+# Commands
+
+# logo command
+@app.command()
+def logo(
+    small: bool = typer.Option(False, "-s", help="Small logo"),
+    large: bool = typer.Option(False, "-l", help="Large logo")
+):
+    """Display the rhythmsync logo."""
+
+    options = [small, large]
+
+    if sum(options) > 1:
+        console.print("[red]Error: Multiple options (-s, -l) selected. Choose only one![/red]")
+        raise typer.Exit(1)
 
     try:
-        tty.setraw(fd)
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old)
-
-    return ch
-
-
-# history redraw logic
-def redraw_input(prompt, buffer):
-    global last_rendered_lines
-
-    cols = os.get_terminal_size().columns
-    full = prompt + buffer
-
-    lines = max(1, (len(full) // cols) + 1)
-
-    for _ in range(last_rendered_lines - 1):
-        sys.stdout.write("\x1b[F")
-
-    for i in range(last_rendered_lines):
-        sys.stdout.write("\r\x1b[2K")
-
-        if i < last_rendered_lines - 1:
-            sys.stdout.write("\x1b[E")
-
-    for _ in range(last_rendered_lines - 1):
-        sys.stdout.write("\x1b[F")
-
-    sys.stdout.write("\r" + full)
-    sys.stdout.flush()
-
-    last_rendered_lines = lines
-
-
-# path autocompletion
-def complete_path(text: str) -> str:
-    if not text:
-        return text
-
-    escape_chars_re = re.compile(r'([ \t\n\r\f\v\\\'\"&|()<>!*?~])')
-
-    def escape_path(path: str) -> str:
-        return escape_chars_re.sub(r'\\\1', path)
-
-    def unescape_path(path: str) -> str:
-        return path.replace('\\', '')
-
-    def complete_fragment(fragment):
-        raw_path = unescape_path(fragment)
-        expanded_path = os.path.expanduser(raw_path)
-
-        breakslash = False
-        
-        dir_name, prefix = os.path.split(expanded_path)
-        if not dir_name:
-            dir_name = "."
-
-        try:
-            entries = list(os.scandir(dir_name))
-        except OSError:
-            return None
-
-        matches = [e.name for e in entries if e.name.startswith(prefix)]
-        if not matches:
-            return None
-
-        if len(matches) == 1:
-            chosen_name = matches[0]
+        if small:
+            terminal_disp.logo("small")
+        elif large:
+            terminal_disp.logo("large")
         else:
-            common = os.path.commonprefix(matches)
-            if not common or common == prefix:
-                return None
-            chosen_name = common
-            breakslash = True
+            terminal_disp.logo()
 
-        completed = os.path.join(dir_name, chosen_name)
-        
-        if os.path.isdir(completed) and not breakslash:
-            completed += os.sep
+    except Exception as e:
+        console.print(f"[red]Error: Failed to display logo: {e}[/red]")
+        raise typer.Exit(1)
 
-        return escape_path(completed)
 
-    parts = re.split(r'(?<!\\) ', text)
+# play command
+@app.command()
+def play(
+    path: Path = typer.Argument(..., resolve_path=True, help="Audio file, folder, or .mpl playlist"),
+    dir_mode: bool = typer.Option(False, "-d", help="Play all audio files in directory (non-recursive)"),
+    dir_rec_mode: bool = typer.Option(False, "-D", help="Play all audio files in directory (recursive)"),
+    playlist_mode: bool = typer.Option(False, "-p", help="Play .mpl playlist"),
+):
+    """Play an audio file, a directory of files, or a .mpl playlist."""
+
+    if not path.exists():
+        console.print(f"[red]Error: Path does not exist: {path}[/red]")
+        raise typer.Exit(1)
     
-    if parts:
-        last_part = parts[-1]
-        completed = complete_fragment(last_part)
-        
-        if completed:
-            base = " ".join(parts[:-1])
-            return f"{base} {completed}".strip()
+    modes = [dir_mode, dir_rec_mode, playlist_mode]
 
-    return text
+    if sum(modes) > 1:
+        console.print("[red]Error: Multiple modes (-d, -D, -p) selected. Choose only one![/red]")
+        raise typer.Exit(1)
 
-    
-# cli input
-def input_cli(prompt="> "):
-    global history_index
+    audio_files = []
 
-    buffer = ""
-    cursor_pos = 0
-    history_index = len(history)
-    redraw_input(prompt, buffer)
-
-    while True:
-        ch = getch()
-
-        # CTRL+C
-        if ch == "\x03":
-            raise KeyboardInterrupt
-
-        # CTRL+Z
-        elif ch == "\x1a":
-            print("\n[Suspended]")
-            fd = sys.stdin.fileno()
-            termios.tcsetattr(fd, termios.TCSADRAIN, termios.tcgetattr(fd))
-            os.kill(os.getpid(), signal.SIGTSTP)
-
-        # ENTER
-        elif ch == "\r" or ch == "\n":
-            print()
-            if buffer.strip():
-                history.append(buffer)
-
-            return buffer
-
-        # BACKSPACE
-        elif ch == "\x7f":
-            if cursor_pos > 0:
-                buffer = buffer[:cursor_pos - 1] + buffer[cursor_pos:]
-                cursor_pos -= 1
-                redraw_input(prompt, buffer)
-  
-                if cursor_pos < len(buffer):
-                    sys.stdout.write(f"\x1b[{len(buffer) - cursor_pos}D")
-                    sys.stdout.flush()
-
-        # TAB
-        elif ch == "\t":
-            buffer = complete_path(buffer)
-            cursor_pos = len(buffer)
-            redraw_input(prompt, buffer)
-
-        # ESC Sequences
-        elif ch == "\x1b":
+    try:
+        if playlist_mode:
+            if path.suffix.lower() != ".mpl":
+                console.print("[red]Error: Playlist must have a .mpl extension.[/red]")
+                raise typer.Exit(1)
             try:
-                next1 = getch()
-                next2 = getch()
-            except Exception:
-                continue
+                audio_files = mpl.load_playlist(str(path))
+            except Exception as e:
+                console.print(f"[red]Error: Failed to load playlist: {e}[/red]")
+                raise typer.Exit(1)
 
-            # DEL
-            if next2 == "3":
-                _ = getch()
-                if cursor_pos < len(buffer):
-                    buffer = buffer[:cursor_pos] + buffer[cursor_pos+1:]
-                    redraw_input(prompt, buffer)
-                    if cursor_pos < len(buffer):
-                        sys.stdout.write(f"\x1b[{len(buffer) - cursor_pos}D")
-                        sys.stdout.flush()
-            
-            # LEFT arrow
-            elif next2 == "D":
-                if cursor_pos > 0:
-                    cursor_pos -= 1
-                    sys.stdout.write("\x1b[D")
-                    sys.stdout.flush()
-
-            # RIGHT arrow
-            elif next2 == "C":
-                if cursor_pos < len(buffer):
-                    cursor_pos += 1
-                    sys.stdout.write("\x1b[C")
-                    sys.stdout.flush()
-
-            # UP arrow
-            elif next2 == "A":
-                if history:
-                    history_index = max(0, history_index - 1)
-                    buffer = history[history_index]
-                    cursor_pos = len(buffer)
-                    redraw_input(prompt, buffer)
-
-            # DOWN arrow
-            elif next2 == "B":
-                if history:
-                    history_index = min(len(history), history_index + 1)
-                    if history_index < len(history):
-                        buffer = history[history_index]
-                    else:
-                        buffer = ""
-                    cursor_pos = len(buffer)
-                    redraw_input(prompt, buffer)
+        elif dir_mode or dir_rec_mode:
+            if not path.is_dir():
+                console.print("[red]Error: Path must be a directory when using directory modes (-d, -D).[/red]")
+                raise typer.Exit(1)
+            audio_files = get_audio_files(path, recursive=dir_rec_mode)
 
         else:
-            buffer = buffer[:cursor_pos] + ch + buffer[cursor_pos:]
-            cursor_pos += 1
-            redraw_input(prompt, buffer)
+            # Single file mode
+            if not is_audio_file(path):
+                console.print("[red]Error: Unsupported or invalid audio file.[/red]")
+                raise typer.Exit(1)
+            audio_files = [path]
 
-            if cursor_pos < len(buffer):
-                sys.stdout.write(f"\x1b[{len(buffer) - cursor_pos}D")
-                sys.stdout.flush()
+        if not audio_files:
+            console.print("[red]Error: No supported audio files found.[/red]")
+            raise typer.Exit(1)
 
-
-# main program
-def main():
-    terminal_disp.clear_screen()
-
-    global history, history_index, last_rendered_lines
-
-    history = []
-    history_index = -1
-    last_rendered_lines = 1
-
-    terminal_disp.logo()
-
-    while True:
         try:
-            command_parser.parse_command(input_cli("> "))
-        except KeyboardInterrupt:
-            print("Exiting...")
-            break
+            player.run_player(audio_files)
+            console.print("Exiting player...", highlight=False)
+
         except Exception as e:
-            terminal_disp.error_msg(e)
-            break
+            console.print(f"[red]Playback error: {e}[/red]")
+            raise typer.Exit(1)
+
+    except typer.Exit:
+        raise
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+
+# info command
+@app.command()
+def info(
+    file: Path = typer.Argument(..., resolve_path=True, help="Audio file to inspect"),
+    tags: List[str] = typer.Argument(None, help="Specific tags to display (optional)")
+):
+    """Display metadata for an audio file."""
+
+    if not file.exists():
+        console.print(f"[red]Error: File does not exist: {file}[/red]")
+        raise typer.Exit(1)
+
+    try:
+        file_info = metadata.get_metadata(file, tags)
+
+    except Exception as e:
+        console.print(f"[red]Error: Failed to read metadata: {e}[/red]")
+        raise typer.Exit(1)
+
+    if file_info:
+        console.print(file_info, highlight=False)
+    else:
+        console.print("[yellow]No metadata found for this file.[/yellow]")
+
+
+# convert command
+@app.command()
+def convert(
+    input: Path = typer.Argument(..., resolve_path=True, help="Input audio file"),
+    output: Path = typer.Argument(..., resolve_path=True, help="Output file")
+):
+    """Convert an audio file."""
+
+    if not input.exists():
+        console.print(f"[red]Error: Input file does not exist: {input}[/red]")
+        raise typer.Exit(1)
+
+    output_dir = output.parent
+    if not output_dir.exists():
+        console.print("[red]Error: Output directory does not exist.[/red]")
+        raise typer.Exit(1)
+
+    try:
+        converter.convert(input, output)
+        console.print("[green]Conversion complete.[/green]")
+
+    except typer.Exit:
+        raise
+    
+    except Exception as e:
+        console.print(f"[red]Error: Conversion failed: {e}[/red]")
+        raise typer.Exit(1)
+
+
+# playlist subcommands
+playlist_app = typer.Typer(help="Manage .mpl playlists")
+app.add_typer(playlist_app, name="playlist")
+
+
+# create playlist command
+@playlist_app.command("create")
+def playlist_create(name: str):
+    """Create a new playlist."""
+
+    try:
+        pass
+    except Exception as e:
+        console.print(f"[red]Error: Failed to create playlist: {e}[/red]")
+        raise typer.Exit(1)
+
+
+# edit playlist command
+@playlist_app.command("edit")
+def playlist_edit(name: str):
+    """Edit an existing playlist."""
+
+    try:
+        pass
+    except Exception as e:
+        console.print(f"[red]Error: Failed to edit playlist: {e}[/red]")
+        raise typer.Exit(1)
+
+
+# delete playlist command
+@playlist_app.command("delete")
+def playlist_delete(name: str):
+    """Delete a playlist."""
+
+    try:
+        pass
+    except Exception as e:
+        console.print(f"[red]Error: Failed to delete playlist: {e}[/red]")
+        raise typer.Exit(1)
+
+
+# main
+def main():
+    app()
 
 
 # entry point

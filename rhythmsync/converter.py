@@ -48,7 +48,7 @@ def convert(input_file: Path, output_file: Path) -> bool:
             str(output_file)
         ]
 
-        console.print("Starting conversion...")
+        console.print("[blue]Starting conversion...[/blue]")
 
         process = subprocess.Popen(
             command,
