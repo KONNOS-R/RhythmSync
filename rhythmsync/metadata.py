@@ -119,44 +119,47 @@ def get_ti_ar(file_path):
 def get_lrc(file_path):
     try:
         audio = File(file_path)
-
         if audio is None or audio.tags is None:
             return None
 
-        lrc_tag_names = ['SYLT', 'SYLT::eng', 'LYRICS', 'LYRICS:eng', 'LYRICS-ENG', 'LYRICS_EN', 'LYRICS_SYNCED', 'SYNCEDLYRICS']
+        tag_map = get_tag_map()
+        reverse_map = {}
+        for canonical, variants in tag_map.items():
+            for variant in variants:
+                reverse_map[variant.lower()] = canonical
 
-        # fetch lyrics
-        for tag in lrc_tag_names:
-            if tag in audio.tags:
+        lyric_canonicals = {'lyrics', 'syncedlyrics','synchronizedlyrics'}
 
-                value = audio.tags[tag]
+        raw_lyrics = None
 
-                if tag.startswith("SYLT"):
-                    try:
-                        return "\n".join([t[2] for t in value[0].text])
-                    except Exception:
-                        raw_lyrics = value[0]
-                    
-                raw_lyrics = value[0] if isinstance(value, list) else value
+        for key, value in audio.tags.items():
+            canonical = reverse_map.get(key.lower(), key.lower())
+            if canonical in lyric_canonicals:
+                # Extract the raw text
+                if hasattr(value, "text"):
+                    raw_lyrics = value.text
+                elif isinstance(value, (list, tuple)):
+                    raw_lyrics = value[0] if value else None
+                else:
+                    raw_lyrics = str(value)
+                break
 
-                # format lyrics
-                timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
+        if raw_lyrics is None:
+            return None
 
-                lrc_lines = raw_lyrics.split("\n")
-            
-                lyrics = [[line[1:9],line[10:].strip()] for line in lrc_lines if match(timestamp, line)]
-            
-                lyrics.insert(0,['00:00.00', ""])
-            
-                for x in lyrics:
-                    if x[1] == "":
-                        x[1] = "♫"
+        # format lyrics
+        timestamp = r"^\[\d{2}:\d{2}\.\d{2}\]"
+        lrc_lines = raw_lyrics.split("\n")
+        lyrics = [[line[1:9], line[10:].strip()] for line in lrc_lines if match(timestamp, line)]
 
-                return lyrics
+        lyrics.insert(0, ['00:00.00', ""])
+        for x in lyrics:
+            if x[1] == "":
+                x[1] = "♫"
 
-        return None
+        return lyrics
 
-    except Exception as e:
+    except Exception:
         return None
 
 
