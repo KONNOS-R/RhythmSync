@@ -18,7 +18,7 @@ import rhythmsync.metadata as metadata
 import rhythmsync.terminal_disp as terminal_disp
 
 
-# create rich layout
+# creates rich layout
 def make_layout():
     layout = Layout()
     layout.split_column(
@@ -134,14 +134,14 @@ def make_footer(file_path: str):
     return Align.center(f"{prefix}{displayed_path}")
 
 
-# get the total length of the audio file
+# gets the total length of the audio file
 def get_duration(file_path):
     audio = File(file_path)
 
     return int(audio.info.length * 1000) 
 
 
-# format milliseconds -> mm:ss.xx
+# formats milliseconds -> mm:ss.xx
 def format_time(milliseconds):
     min = int((milliseconds // 1000) // 60)
     sec = (milliseconds // 1000) % 60
@@ -151,7 +151,7 @@ def format_time(milliseconds):
     return f"{min:02}:{sec:02}.{hund:02}"
 
 
-# format mm:ss.xx -> milliseconds
+# formats mm:ss.xx -> milliseconds
 def unformat_time(time_str):
     min, sec = time_str.split(":")
     sec, hund = sec.split(".")
@@ -161,7 +161,7 @@ def unformat_time(time_str):
     return milliseconds
 
 
-# create random order for shuffle
+# creates random order for shuffle
 def shuffled_indices(n, x = None):   
     if x != None: 
         numbers = [i for i in range(n) if i != x]

@@ -7,6 +7,7 @@ console = Console()
 import rhythmsync.terminal_disp as terminal_disp
 
 
+# converts audio file to another format
 def convert(input_file: Path, output_file: Path) -> bool:
     CODEC_CONFIG: Dict[str, List[str]] = {
         ".mp3": [

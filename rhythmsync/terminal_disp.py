@@ -4,7 +4,7 @@ console = Console()
 from rich.align import Align
 
 
-# gradient
+# gradient maker
 def hex_gradient(color1, color2, steps):
     def hex_to_rgb(hex_color):
         hex_color = hex_color.lstrip('#')
@@ -30,12 +30,12 @@ def hex_gradient(color1, color2, steps):
     return gradient
 
 
-# clear the terminal
+# clears the terminal
 def clear_screen():
     os.system('clear')
 
 
-# print logo
+# prints logo
 def logo(option = None):
     small_logo = r'''
  _____  _           _   _                _____                  
@@ -85,7 +85,7 @@ def logo(option = None):
     console.print(Align.center(colored_logo))
 
 
-# print help message
+# prints help message
 def help_msg():
     console.print('''COMMAND LIST:
 [green]help[/green]  lists all available commands
@@ -115,7 +115,7 @@ def help_msg():
 ''')
 
 
-# format and print error messages
+# formats and prints error messages
 def error_msg(content, title = None):
     if title != None:
         console.print(f"[bold red]{title} Error:[/bold red] {content}", highlight=False)

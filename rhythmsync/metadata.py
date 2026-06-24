@@ -22,7 +22,7 @@ def get_tag_map():
     }
 
 
-# get meatadata for info command
+# gets metadata for info command
 def get_metadata(file_path, tags=None):
     try:
         audio = File(file_path)
@@ -67,7 +67,7 @@ def get_metadata(file_path, tags=None):
         return None
 
 
-# get title and artist info for the player
+# gets title and artist info for the player
 def get_ti_ar(file_path):
     try:
         audio = File(file_path)
@@ -115,9 +115,10 @@ def get_ti_ar(file_path):
         return f"Unknown Title", "Unknown Artist"
 
 
-# get and format lyrics from the audio file for the player
+# gets and format lyrics from the audio file for the player
 def get_lrc(file_path):
     try:
+        # get lyrics
         audio = File(file_path)
         if audio is None or audio.tags is None:
             return None
@@ -135,7 +136,6 @@ def get_lrc(file_path):
         for key, value in audio.tags.items():
             canonical = reverse_map.get(key.lower(), key.lower())
             if canonical in lyric_canonicals:
-                # Extract the raw text
                 if hasattr(value, "text"):
                     raw_lyrics = value.text
                 elif isinstance(value, (list, tuple)):
@@ -163,7 +163,7 @@ def get_lrc(file_path):
         return None
 
 
-# get meatadata for the info panel (player)
+# gets metadata for the info panel (player)
 def get_info(file_path):
     try:
         info = {

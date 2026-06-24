@@ -1,15 +1,18 @@
+import os
 import typer
 from pathlib import Path
 from typing import List
 from rich.console import Console
+from typing import Optional
 console = Console()
 
-import mpl
+from mpl import core as mpl
 
 import rhythmsync.player as player
 import rhythmsync.metadata as metadata
 import rhythmsync.converter as converter
 import rhythmsync.terminal_disp as terminal_disp
+import rhythmsync.lrc_embedder as lrc_embedder
 
 
 # Helper functions
@@ -25,6 +28,16 @@ def get_audio_files(file_path: Path, recursive: bool = False) -> List[Path]:
         terminal_disp.error_msg("Permission denied when reading directory.")
         return []
     return sorted([f for f in files if is_audio_file(f)])
+
+def mpl_msg_handler(level: str, msg: str) -> None:
+    if level == "warning":
+        console.print(f"[yellow]{msg}[/yellow]")
+    elif level == "info":
+        console.print(f"[green]{msg}[/green]")
+    elif level == "error":
+        terminal_disp.error_msg(msg, "Playlist")
+    else:
+        console.print(msg)
 
 
 # main app
@@ -129,7 +142,7 @@ def play(
             audio_files = get_audio_files(path, recursive=dir_rec_mode)
 
         else:
-            # Single file mode
+            # single file mode
             if not is_audio_file(path):
                 terminal_disp.error_msg(f"Unsupported or invalid file.")
                 raise typer.Exit(1)
@@ -211,44 +224,131 @@ def convert(
         raise typer.Exit(1)
 
 
+@app.command("embed")
+def embed_lrc(
+    path: Path = typer.Argument(..., resolve_path=True, help="Input audio file"),
+    dir_mode: bool = typer.Option(False, "-d", help="Embed lrc to all audio files in directory")
+):
+    """Embed .lrc files into audio files."""
+
+    if dir_mode:
+        lrc_embedder.embed_lrc(path, True)
+    else:
+        lrc_embedder(path, False)
+
+
 # playlist subcommands
 playlist_app = typer.Typer(help="Manage .mpl playlists")
 app.add_typer(playlist_app, name="playlist")
 
 
-# create playlist command
+# playlist create command
 @playlist_app.command("create")
-def playlist_create(name: str):
-    """Create a new playlist."""
+def playlist_create(
+    output_path: Path = typer.Argument(..., resolve_path=True, help="Output .mpl file path"),
+    files: List[Path] = typer.Argument(..., help="Audio files to include"),
+    name: Optional[str] = typer.Option(None, "--name", "-n", help="Playlist name (default: filename stem)"),
+):
+    """Create a new playlist from the given audio files."""
 
     try:
-        pass
+        console.print("[blue]Creating playlist...[/blue]")
+
+        file_paths = [str(f.expanduser().resolve()) for f in files]
+        created = mpl.create_playlist(
+            output_path,
+            file_paths,
+            playlist_name=name,
+            msg_callback=mpl_msg_handler,
+        )
+
+        console.print(f"[bold green]Playlist created:[/bold green] {created}", highlight=False)
+
     except Exception as e:
-        terminal_disp.error_msg(f"Failed to create playlist: {e}")
+        terminal_disp.error_msg(e, "Playlist")
         raise typer.Exit(1)
 
 
-# edit playlist command
-@playlist_app.command("edit")
-def playlist_edit(name: str):
-    """Edit an existing playlist."""
+#playlist repair command
+@playlist_app.command("repair")
+def playlist_repair(
+    path: Path = typer.Argument(..., resolve_path=True, help=".mpl file to repair"),
+    search_dirs: List[Path] = typer.Argument(
+        ..., help="Directories to search for missing files (can give multiple)"
+    ),
+):
+    """Repair missing or moved tracks path."""
 
     try:
-        pass
+        console.print("[blue]Starting playlist repair...[/blue]")
+
+        dir_strings = [str(d.expanduser().resolve()) for d in search_dirs]
+        repaired = mpl.repair_playlist(
+            path,
+            dir_strings,
+            msg_callback=mpl_msg_handler,
+        )
+
+        console.print(f"[bold green]Repair completed:[/bold green] {repaired} track(s) fixed", highlight=False)
+
     except Exception as e:
-        terminal_disp.error_msg(f"Failed to edit playlist: {e}")
+        terminal_disp.error_msg(e, "Playlist")
         raise typer.Exit(1)
 
 
-# delete playlist command
+# playlist load command
+@playlist_app.command("load")
+def playlist_load(
+    path: Path = typer.Argument(..., resolve_path=True, help=".mpl file to load"),
+):
+    """Load and display the tracks from a playlist."""
+
+    try:
+        if not path.is_file():
+            terminal_disp.error_msg(f"File not found: {path}", "Playlist")
+            raise typer.Exit(1)
+
+        track_paths = mpl.load_playlist(path, msg_callback=mpl_msg_handler)
+
+        if not track_paths:
+            console.print("[dim]Playlist is empty.[/dim]")
+            return
+
+        console.print(f"[bold cyan]Playlist contains {len(track_paths)} track(s):[/bold cyan]")
+        for idx, track in enumerate(track_paths, start=1):
+            console.print(f"  [bold]{idx}.[/bold] {track}", highlight=False)
+
+    except Exception as e:
+        terminal_disp.error_msg(e, "Playlist")
+        raise typer.Exit(1)
+
+
+
+# playlist delete command
 @playlist_app.command("delete")
-def playlist_delete(name: str):
+def playlist_delete(
+    path: Path = typer.Argument(..., resolve_path=True, help=".mpl file to delete"),
+    force: bool = typer.Option(False, "-f", help="Skip confirmation"),
+):
     """Delete a playlist."""
 
     try:
-        pass
+        if not path.is_file():
+            terminal_disp.error_msg(f"File not found: {path}", "Playlist")
+            raise typer.Exit(1)
+
+        if not force:
+            confirm = typer.confirm(f"Are you sure you want to delete '{path}'?")
+            if not confirm:
+                console.print("[yellow]Deletion cancelled.[/yellow]")
+                return
+
+        os.remove(path)
+
+        console.print(f"[bold green]Deleted:[/bold green] {path}", highlight=False)
+
     except Exception as e:
-        terminal_disp.error_msg(f"Failed to delete playlist: {e}")
+        terminal_disp.error_msg(e, "Playlist")
         raise typer.Exit(1)
 
 
