@@ -7,6 +7,7 @@ console = Console()
 
 import rhythmsync.terminal_disp as terminal_disp
 
+
 # embeds lyrics (.lrc) into audio file (.flac, .mp3, .ogg)
 def embed_file(audio_path: Path) -> bool:
     lrc_path = audio_path.with_suffix('.lrc')

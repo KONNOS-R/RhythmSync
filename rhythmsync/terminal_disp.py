@@ -85,36 +85,6 @@ def logo(option = None):
     console.print(Align.center(colored_logo))
 
 
-# prints help message
-def help_msg():
-    console.print('''COMMAND LIST:
-[green]help[/green]  lists all available commands
-
-[green]ls[/green]  lists all files and directories in the current working directory
-[green]ls[/green] [cyan]{dir}[/cyan]  lists all files and directories in the specified directory
-                                          
-[green]cd[/green] [cyan]{dir}[/cyan]  changes the current working directory to the specified directory
-
-[green]clear[/green]  clears the terminal
-                   
-[green]play[/green] [cyan]{path}[/cyan]  the given audio file plays once
-[green]play[/green] [cyan]{option} {path}[/cyan]
-    [cyan]-r[/cyan]   the given audio file plays in repeat until stopped
-[green]play[/green] [cyan]{option} {dir}[/cyan]
-    [cyan]-d[/cyan]   the audio files of given directory play in alphabetical order
-    [cyan]-dr[/cyan]  the audio files of given directory play in alphabetical order and loop around until stopped
-    [cyan]-ds[/cyan]  the audio files of given directory play in shuffled order and loop around until stopped
-    [cyan]-D[/cyan]   the audio files of given directory and its subdirectories play in alphabetical order
-    [cyan]-Dr[/cyan]  the audio files of given directory and its subdirectories play in alphabetical order and loop around until stopped
-    [cyan]-Ds[/cyan]  the audio files of given directory and its subdirectories play in shuffled order and loop around until stopped
-   
-[green]info[/green] [cyan]{path}[/cyan]  shows all available tags and their respective values for the given audio file.
-[green]info[/green] [cyan]{path} {tags}[/cyan]  hows only the provided tags (separate tags with space for multiple ones) and their respective values
-                  
-[green]convert[/green] [cyan]{input path} {output path}[/cyan] Converts an audio file to another format (FFmpeg required)
-''')
-
-
 # formats and prints error messages
 def error_msg(content, title = None):
     if title != None:

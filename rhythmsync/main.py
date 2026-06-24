@@ -29,6 +29,7 @@ def get_audio_files(file_path: Path, recursive: bool = False) -> List[Path]:
         return []
     return sorted([f for f in files if is_audio_file(f)])
 
+
 def mpl_msg_handler(level: str, msg: str) -> None:
     if level == "warning":
         console.print(f"[yellow]{msg}[/yellow]")
@@ -59,6 +60,7 @@ def main(
     version: bool = typer.Option(
         False,
         "--version",
+        "-v",
         callback=version_callback,
         is_eager=True,
         is_flag=True,
@@ -83,13 +85,12 @@ def logo(
 ):
     """Display the rhythmsync logo."""
 
-    options = [small, large]
-
-    if sum(options) > 1:
-        terminal_disp.error_msg("Multiple options (-s, -l) selected. Choose only one!")
-        raise typer.Exit(1)
-
     try:
+        options = [small, large]
+
+        if sum(options) > 1:
+            raise ValueError("Multiple options (-s, -l) selected. Choose only one!")
+    
         if small:
             terminal_disp.logo("small")
         elif large:
@@ -112,46 +113,38 @@ def play(
 ):
     """Play an audio file, a directory of files, or a .mpl playlist."""
 
-    if not path.exists():
-        terminal_disp.error_msg(f"Path does not exist: {path}")
-        raise typer.Exit(1)
-    
-    modes = [dir_mode, dir_rec_mode, playlist_mode]
-
-    if sum(modes) > 1:
-        terminal_disp.error_msg("Multiple modes (-d, -D, -p) selected. Choose only one!")
-        raise typer.Exit(1)
-
-    audio_files = []
-
     try:
+        if not path.exists():
+            raise FileNotFoundError(f"Path does not exist: {path}")
+
+        modes = [dir_mode, dir_rec_mode, playlist_mode]
+
+        if sum(modes) > 1:
+            raise ValueError("Multiple modes (-d, -D, -p) selected. Choose only one!")
+
+        audio_files = []
+
         if playlist_mode:
             if path.suffix.lower() != ".mpl":
-                terminal_disp.error_msg("Playlist must have a .mpl extension.")
-                raise typer.Exit(1)
-            try:
-                audio_files = mpl.load_playlist(str(path))
-            except Exception as e:
-                terminal_disp.error_msg(f"Failed to load playlist: {e}")
-                raise typer.Exit(1)
+                raise ValueError("Playlist must have a .mpl extension.")
+        
+            audio_files = mpl.load_playlist(str(path), msg_callback=mpl_msg_handler)
 
         elif dir_mode or dir_rec_mode:
             if not path.is_dir():
-                terminal_disp.error_msg("Path must be a directory when using directory modes (-d, -D).")
-                raise typer.Exit(1)
+                raise ValueError("Path must be a directory when using directory modes (-d, -D).")
+            
             audio_files = get_audio_files(path, recursive=dir_rec_mode)
 
         else:
             # single file mode
             if not is_audio_file(path):
-                terminal_disp.error_msg(f"Unsupported or invalid file.")
-                raise typer.Exit(1)
+                raise ValueError("Unsupported or invalid file.")
             
             audio_files = [path]
 
         if not audio_files:
-            terminal_disp.error_msg("No supported audio files found.")
-            raise typer.Exit(1)
+            raise ValueError("No supported audio files found.")
 
         try:
             player.run_player(audio_files)
@@ -159,10 +152,6 @@ def play(
 
         except Exception as e:
             terminal_disp.error_msg(e, "Playback")
-            raise typer.Exit(1)
-
-    except typer.Exit:
-        raise
 
     except Exception as e:
         terminal_disp.error_msg(e)
@@ -177,21 +166,20 @@ def info(
 ):
     """Display metadata for an audio file."""
 
-    if not file.exists():
-        terminal_disp.error_msg(f"File does not exist.")
-        raise typer.Exit(1)
-
     try:
+        if not file.exists():
+            raise FileNotFoundError(f"File does not exist: {file}")
+
         file_info = metadata.get_metadata(file, tags)
+
+        if file_info:
+            console.print(file_info, highlight=False)
+        else:
+            console.print("[yellow]No metadata found for this file.[/yellow]")
 
     except Exception as e:
         terminal_disp.error_msg(f"Failed to read metadata: {e}")
         raise typer.Exit(1)
-
-    if file_info:
-        console.print(file_info, highlight=False)
-    else:
-        console.print("[yellow]No metadata found for this file.[/yellow]")
 
 
 # convert command
@@ -202,17 +190,15 @@ def convert(
 ):
     """Convert an audio file."""
 
-    if not input.exists():
-        terminal_disp.error_msg(f"Input file does not exist: {input}")
-        raise typer.Exit(1)
-
-    output_dir = output.parent
-
-    if not output_dir.exists():
-        terminal_disp.error_msg("Output directory does not exist.")
-        raise typer.Exit(1)
-
     try:
+        if not input.exists():
+            raise FileNotFoundError(f"Input file does not exist: {input}")
+
+        output_dir = output.parent
+
+        if not output_dir.exists():
+            raise FileNotFoundError("Output directory does not exist.")
+
         converter.convert(input, output)
         console.print("[green]Conversion complete.[/green]")
 
@@ -231,10 +217,18 @@ def embed_lrc(
 ):
     """Embed .lrc files into audio files."""
 
-    if dir_mode:
-        lrc_embedder.embed_lrc(path, True)
-    else:
-        lrc_embedder(path, False)
+    try:
+        if not path.exists():
+            raise FileNotFoundError(f"Path does not exist: {path}")
+
+        if dir_mode:
+            lrc_embedder.embed_lrc(path, True)
+        else:
+            lrc_embedder.embed_lrc(path, False)
+
+    except Exception as e:
+        terminal_disp.error_msg(e)
+        raise typer.Exit(1)
 
 
 # playlist subcommands
@@ -254,7 +248,7 @@ def playlist_create(
     try:
         console.print("[blue]Creating playlist...[/blue]")
 
-        file_paths = [str(f.expanduser().resolve()) for f in files]
+        file_paths = [f.resolve() for f in files]
         created = mpl.create_playlist(
             output_path,
             file_paths,
@@ -265,7 +259,7 @@ def playlist_create(
         console.print(f"[bold green]Playlist created:[/bold green] {created}", highlight=False)
 
     except Exception as e:
-        terminal_disp.error_msg(e, "Playlist")
+        terminal_disp.error_msg(e)
         raise typer.Exit(1)
 
 
@@ -280,9 +274,13 @@ def playlist_repair(
     """Repair missing or moved tracks path."""
 
     try:
+        if not path.is_file():
+            raise FileNotFoundError(f"File not found: {path}")
+
         console.print("[blue]Starting playlist repair...[/blue]")
 
-        dir_strings = [str(d.expanduser().resolve()) for d in search_dirs]
+        dir_strings = [str(d.resolve()) for d in search_dirs]
+
         repaired = mpl.repair_playlist(
             path,
             dir_strings,
@@ -292,7 +290,7 @@ def playlist_repair(
         console.print(f"[bold green]Repair completed:[/bold green] {repaired} track(s) fixed", highlight=False)
 
     except Exception as e:
-        terminal_disp.error_msg(e, "Playlist")
+        terminal_disp.error_msg(e)
         raise typer.Exit(1)
 
 
@@ -305,21 +303,19 @@ def playlist_load(
 
     try:
         if not path.is_file():
-            terminal_disp.error_msg(f"File not found: {path}", "Playlist")
-            raise typer.Exit(1)
+            raise FileNotFoundError(f"File not found: {path}")
 
         track_paths = mpl.load_playlist(path, msg_callback=mpl_msg_handler)
 
         if not track_paths:
-            console.print("[dim]Playlist is empty.[/dim]")
             return
 
         console.print(f"[bold cyan]Playlist contains {len(track_paths)} track(s):[/bold cyan]")
         for idx, track in enumerate(track_paths, start=1):
             console.print(f"  [bold]{idx}.[/bold] {track}", highlight=False)
-
+    
     except Exception as e:
-        terminal_disp.error_msg(e, "Playlist")
+        terminal_disp.error_msg(e)
         raise typer.Exit(1)
 
 
@@ -334,8 +330,7 @@ def playlist_delete(
 
     try:
         if not path.is_file():
-            terminal_disp.error_msg(f"File not found: {path}", "Playlist")
-            raise typer.Exit(1)
+            raise FileNotFoundError(f"File not found: {path}")
 
         if not force:
             confirm = typer.confirm(f"Are you sure you want to delete '{path}'?")
@@ -348,7 +343,7 @@ def playlist_delete(
         console.print(f"[bold green]Deleted:[/bold green] {path}", highlight=False)
 
     except Exception as e:
-        terminal_disp.error_msg(e, "Playlist")
+        terminal_disp.error_msg(e)
         raise typer.Exit(1)
 
 
@@ -359,4 +354,4 @@ def main():
 
 # entry point
 if __name__ == "__main__":
-    main()
+    main() 
