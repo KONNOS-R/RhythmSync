@@ -16,6 +16,7 @@ import rhythmsync.lrc_embedder as lrc_embedder
 
 
 # Helper functions
+#-------------------
 def is_audio_file(file_path: Path) -> bool:
     return file_path.is_file() and file_path.suffix.lower() in (".mp3", ".flac", ".wav", ".ogg")
 
@@ -41,7 +42,8 @@ def mpl_msg_handler(level: str, msg: str) -> None:
         console.print(msg)
 
 
-# main app
+# main program
+#-------------------
 app = typer.Typer()
 
 
@@ -108,7 +110,7 @@ def logo(
 def play(
     path: Path = typer.Argument(..., resolve_path=True, help="Audio file, folder, or .mpl playlist"),
     dir_mode: bool = typer.Option(False, "-d", help="Play all audio files in directory (non-recursive)"),
-    dir_rec_mode: bool = typer.Option(False, "-D", help="Play all audio files in directory (recursive)"),
+    dir_rec_mode: bool = typer.Option(False, "-r", help="Play all audio files in directory (recursive)"),
     playlist_mode: bool = typer.Option(False, "-p", help="Play .mpl playlist"),
 ):
     """Play an audio file, a directory of files, or a .mpl playlist."""
@@ -120,7 +122,7 @@ def play(
         modes = [dir_mode, dir_rec_mode, playlist_mode]
 
         if sum(modes) > 1:
-            raise ValueError("Multiple modes (-d, -D, -p) selected. Choose only one!")
+            raise ValueError("Multiple modes (-d, -r, -p) selected. Choose only one!")
 
         audio_files = []
 
@@ -132,7 +134,7 @@ def play(
 
         elif dir_mode or dir_rec_mode:
             if not path.is_dir():
-                raise ValueError("Path must be a directory when using directory modes (-d, -D).")
+                raise ValueError("Path must be a directory when using directory modes (-d, -r).")
             
             audio_files = get_audio_files(path, recursive=dir_rec_mode)
 

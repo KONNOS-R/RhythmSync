@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rhythmsync"
-version = "1.1.1"
+version = "1.2.0"
 description = "CLI music player with synchronized lyrics (LRC) support"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -18,7 +18,8 @@ keywords = ["music", "cli", "audio", "lrc", "player", "terminal"]
 dependencies = [
   "pygame",
   "rich",
-  "mutagen"
+  "mutagen",
+  "eyed3"
 ]
 
 classifiers = [
