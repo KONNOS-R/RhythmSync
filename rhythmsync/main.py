@@ -8,11 +8,11 @@ console = Console()
 
 from mpl import core as mpl
 
-import rhythmsync.player as player
-import rhythmsync.metadata as metadata
-import rhythmsync.converter as converter
-import rhythmsync.terminal_disp as terminal_disp
-import rhythmsync.lrc_embedder as lrc_embedder
+from . import player
+from . import metadata
+from . import converter
+from . import terminal_disp
+from . import lrc_embedder
 
 
 # Helper functions
@@ -326,7 +326,7 @@ def playlist_load(
 @playlist_app.command("delete")
 def playlist_delete(
     path: Path = typer.Argument(..., resolve_path=True, help=".mpl file to delete"),
-    force: bool = typer.Option(False, "-f", help="Skip confirmation"),
+    force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation"),
 ):
     """Delete a playlist."""
 

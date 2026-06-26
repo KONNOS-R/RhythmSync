@@ -67,7 +67,7 @@ def logo(option = None):
     elif option == "large":
         displayed_logo = large_logo
     else:
-        if os.get_terminal_size()[0] < 128:
+        if os.get_terminal_size()[0] < 108:
             displayed_logo = small_logo
         else:
             displayed_logo = large_logo

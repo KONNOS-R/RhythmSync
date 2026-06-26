@@ -5,7 +5,7 @@ import eyed3
 from rich.console import Console
 console = Console()
 
-import rhythmsync.terminal_disp as terminal_disp
+from . import terminal_disp
 
 
 # embeds lyrics (.lrc) into audio file (.flac, .mp3, .ogg)

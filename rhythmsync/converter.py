@@ -4,7 +4,7 @@ from typing import Dict, List
 from rich.console import Console
 console = Console()
 
-import rhythmsync.terminal_disp as terminal_disp
+from . import terminal_disp
 
 
 # converts audio file to another format

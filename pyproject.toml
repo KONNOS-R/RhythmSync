@@ -7,30 +7,39 @@ name = "rhythmsync"
 version = "1.2.0"
 description = "CLI music player with synchronized lyrics (LRC) support"
 readme = "README.md"
-requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-  {name = "KON/NOS R"}
+	{name = "KON/NOS R"}
+]
+requires-python = ">=3.8"
+
+keywords = [
+	"music", 
+    "cli", 
+    "audio", 
+    "lrc", 
+  	"player", 
+  	"terminal"
 ]
 
-keywords = ["music", "cli", "audio", "lrc", "player", "terminal"]
-
 dependencies = [
-  "pygame",
-  "rich",
-  "mutagen",
-  "eyed3"
+	"pygame",
+  	"rich",
+  	"typer",
+  	"mutagen",
+  	"eyed3",
+	"music-playlist-format"
 ]
 
 classifiers = [
-  "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
-  "Environment :: Console",
-  "Operating System :: Unix",
-  "Operating System :: POSIX",
-  "Operating System :: MacOS",
-  "Topic :: Multimedia :: Sound/Audio :: Players",
-  "Topic :: Utilities"
+  	"Programming Language :: Python :: 3",
+  	"License :: OSI Approved :: MIT License",
+  	"Environment :: Console",
+  	"Operating System :: Unix",
+  	"Operating System :: POSIX",
+  	"Operating System :: MacOS",
+  	"Topic :: Multimedia :: Sound/Audio :: Players",
+  	"Topic :: Utilities"
 ]
 
 [project.scripts]

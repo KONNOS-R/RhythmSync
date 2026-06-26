@@ -14,8 +14,8 @@ import tty
 import select
 from random import shuffle
 
-import rhythmsync.metadata as metadata
-import rhythmsync.terminal_disp as terminal_disp
+from . import metadata
+from . import terminal_disp
 
 
 # creates rich layout

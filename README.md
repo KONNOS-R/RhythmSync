@@ -26,6 +26,8 @@ CLI audio player that plays music while displaying synchronized lyrics (LRC).
   - `RIGHT Arrow` – Next track
   - `LEFT Arrow` – Previous track
   - `I` – Toggle main display between lyrics and info
+  - `R` – Toggle repeat modes (off, single, all)
+  - `S` – Toggle shuffle
 
 ---
 
@@ -90,7 +92,9 @@ RhythmSync reads embedded lyric metadata from audio files.
 - Format: `[mm:ss.xx] Line`
 - Timestamps are in minutes, seconds, and hundredths of a second.
 
-> **Note:** If no lyrics are found, a placeholder message is shown instead.
+> **Notes:**
+> - If no lyrics are found, a placeholder message is shown.
+> - For files with external `.lrc` files, use the `embed` command to embed the lyrics into the metadata.
 
 ---
 
@@ -339,7 +343,7 @@ rhythmsync playlist delete [OPTIONS] PATH
 
 | Option | Description |
 |--------|-------------|
-| `-f` | Skip confirmation prompt |
+| `--force, -f` | Skip confirmation prompt |
 
 **Examples:**
 

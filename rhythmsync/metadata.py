@@ -1,7 +1,7 @@
 from mutagen import File
 from re import match
 
-import rhythmsync.terminal_disp as terminal_disp
+from . import terminal_disp
 
 
 # tag map
