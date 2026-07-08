@@ -281,7 +281,7 @@ def playlist_repair(
 
         console.print("[blue]Starting playlist repair...[/blue]")
 
-        dir_strings = [str(d.resolve()) for d in search_dirs]
+        dir_strings = [d.resolve() for d in search_dirs]
 
         repaired = mpl.repair_playlist(
             path,

@@ -15,9 +15,9 @@ requires-python = ">=3.8"
 
 keywords = [
 	"music", 
-    "cli", 
-    "audio", 
-    "lrc", 
+	"cli", 
+	"audio", 
+	"lrc", 
   	"player", 
   	"terminal"
 ]
